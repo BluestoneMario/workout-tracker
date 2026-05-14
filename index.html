@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workout Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0c0c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Workout">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
+</head>
+<body>
+
+<h2 class="sr-only">Workout tracker v2 — Session A and B with improved layout, set tracking, rest timer, and JSON progress saving</h2>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+#wrap{
+  max-width:640px;
+  margin:0 auto;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-tertiary, #0c0c0f);
+  --accent-a:#2E75B6;
+  --accent-b:#1B3A5C;
+  --done:#22C55E;
+  --warn:#F59E0B;
+  --danger:#EF4444;
+  position:relative;
+}
+
+/* ============================= HEADER ============================= */
+.sticky-hdr{
+  position:sticky; top:0; z-index:20;
+  background:var(--color-background-primary, #16161a);
+  border-bottom:1px solid var(--color-border-secondary, #2c2c32);
+  padding:18px 22px 18px;
+}
+
+/* Top row: brand + date pill + history button */
+.hdr-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:18px;
+}
+.hdr-brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.hdr-mark{
+  width:22px;height:22px;
+  border-radius:6px;
+  background:var(--color-text-primary, #f1f1f3);
+  color:var(--color-background-primary, #16161a);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.hdr-mark i{font-size:13px !important;}
+.hdr-name{
+  font-size:13.5px;
+  font-weight:600;
+  color:var(--color-text-primary, #f1f1f3);
+  letter-spacing:-0.01em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.hdr-date{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  color:var(--color-text-secondary, #a3a3a9);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  padding:6px 10px;
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:999px;
+  font-weight:500;
+  white-space:nowrap;
+}
+#view-btn{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  padding:6px 10px;
+  background:transparent;
+  border:1px solid var(--color-border-tertiary, #222227);
+  color:var(--color-text-secondary, #a3a3a9);
+  border-radius:999px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  white-space:nowrap;
+  font-weight:600;
+  transition:color .15s, border-color .15s, background .15s;
+}
+#view-btn:hover{color:var(--color-text-primary, #f1f1f3);border-color:var(--color-text-primary, #f1f1f3);}
+
+/* Hero row */
+.hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+.hero-block{display:flex;flex-direction:column;gap:7px;min-width:0;}
+#timer-disp{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:56px;
+  line-height:0.92;
+  font-weight:500;
+  letter-spacing:-0.045em;
+  font-variant-numeric:tabular-nums;
+  color:var(--color-text-tertiary, #6a6a71);
+  transition:color .2s;
+}
+.hero-label{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  color:var(--color-text-tertiary, #6a6a71);
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  font-weight:600;
+}
+.hero-stats{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+  text-align:right;
+  padding-bottom:3px;
+}
+.hero-stat{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:2px;
+}
+#prog-pct{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:22px;
+  font-weight:500;
+  color:var(--color-text-primary, #f1f1f3);
+  letter-spacing:-0.025em;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+#prog-sets{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:13px;
+  color:var(--color-text-secondary, #a3a3a9);
+  letter-spacing:-0.01em;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.hero-stat-lbl{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:9.5px;
+  color:var(--color-text-tertiary, #6a6a71);
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  font-weight:600;
+}
+
+/* Progress bar */
+.prog-bar-row{
+  display:flex; align-items:center; gap:0;
+  margin-bottom:18px;
+}
+.prog-bar{
+  flex:1;
+  height:6px;
+  background:var(--color-background-secondary, #1f1f24);
+  border-radius:4px;
+  overflow:hidden;
+}
+#prog-fill{
+  height:100%;
+  border-radius:4px;
+  width:0%;
+  background:var(--accent-a);
+  transition:width .35s ease;
+}
+
+/* Session tabs as cards */
+.sess-row{display:flex;gap:8px;}
+.sess-tab{
+  flex:1;
+  padding:13px 14px;
+  background:var(--color-background-secondary, #1f1f24);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:12px;
+  color:var(--color-text-secondary, #a3a3a9);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-align:left;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  transition:all .15s ease;
+  min-width:0;
+}
+.sess-tab:hover{
+  color:var(--color-text-primary, #f1f1f3);
+  border-color:var(--color-border-secondary, #2c2c32);
+}
+.sess-key{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:15px;
+  font-weight:600;
+  line-height:1;
+  width:30px; height:30px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--color-background-primary, #16161a);
+  border:1px solid var(--color-border-tertiary, #222227);
+  color:var(--color-text-secondary, #a3a3a9);
+  border-radius:9px;
+  letter-spacing:-0.02em;
+  flex-shrink:0;
+  transition:all .15s;
+}
+.sess-info{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.sess-info-title{
+  font-size:13.5px;
+  font-weight:500;
+  line-height:1.2;
+  color:inherit;
+  letter-spacing:-0.005em;
+}
+.sess-info-day{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  color:var(--color-text-tertiary, #6a6a71);
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  font-weight:500;
+}
+.sess-tab.on-a, .sess-tab.on-b{
+  color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-primary, #16161a);
+  border-color:var(--color-text-primary, #f1f1f3);
+}
+.sess-tab.on-a .sess-key{
+  background:var(--accent-a);
+  border-color:var(--accent-a);
+  color:#fff;
+}
+.sess-tab.on-b .sess-key{
+  background:var(--accent-b);
+  border-color:var(--accent-b);
+  color:#fff;
+}
+
+/* Rest row */
+#rest-row{
+  /* display toggled by JS */
+  margin-top:14px;
+  padding:14px 16px;
+  background:color-mix(in srgb, var(--accent-a) 4%, var(--color-background-secondary, #1f1f24));
+  border:1px solid color-mix(in srgb, var(--accent-a) 25%, var(--color-border-tertiary, #222227));
+  border-radius:12px;
+  align-items:center;
+  gap:14px;
+}
+.rest-label{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  color:var(--color-text-secondary, #a3a3a9);
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  font-weight:700;
+  flex-shrink:0;
+}
+#rest-cnt{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:30px;
+  font-weight:500;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-0.035em;
+  line-height:1;
+  color:var(--color-text-primary, #f1f1f3);
+  min-width:68px;
+}
+.rest-bar{
+  flex:1;
+  height:6px;
+  background:var(--color-background-primary, #16161a);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:4px;
+  overflow:hidden;
+  min-width:30px;
+}
+#rest-fill{
+  height:100%;
+  border-radius:3px;
+  width:100%;
+  background:var(--done);
+  transition:width 1s linear, background-color .25s;
+}
+.rest-skip{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  padding:7px 12px;
+  background:var(--color-background-primary, #16161a);
+  border:1px solid var(--color-border-tertiary, #222227);
+  color:var(--color-text-primary, #f1f1f3);
+  border-radius:999px;
+  cursor:pointer;
+  flex-shrink:0;
+  font-weight:600;
+  transition:border-color .15s, background .15s;
+}
+.rest-skip:hover{border-color:var(--color-text-primary, #f1f1f3);background:var(--color-background-secondary, #1f1f24);}
+
+#timer-btn{
+  margin-top:6px;
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  padding:7px 12px;
+  background:var(--color-background-primary, #16161a);
+  border:1px solid var(--color-border-tertiary, #222227);
+  color:var(--color-text-primary, #f1f1f3);
+  border-radius:999px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-weight:600;
+  transition:border-color .15s, background .15s;
+}
+#timer-btn:hover{border-color:var(--color-text-primary, #f1f1f3);background:var(--color-background-secondary, #1f1f24);}
+
+/* ============================= WORKOUT ============================= */
+#workout-view{padding:22px 22px 28px;}
+
+/* Block dividers — title row with leading dot */
+.blk-div{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin:30px 0 14px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--color-border-tertiary, #222227);
+}
+.blk-div:first-of-type{margin-top:4px;}
+.blk-div::before{
+  content:"";
+  width:6px; height:6px;
+  background:var(--color-text-primary, #f1f1f3);
+  border-radius:50%;
+  display:inline-block;
+  flex-shrink:0;
+}
+.blk-div-line{display:none;}
+.blk-div-lbl{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  font-weight:700;
+  color:var(--color-text-primary, #f1f1f3);
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  white-space:nowrap;
+  flex:1;
+}
+
+/* Exercise cards */
+.ex-card{
+  position:relative;
+  background:var(--color-background-primary, #16161a);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:12px;
+  margin-bottom:8px;
+  overflow:hidden;
+  transition:background .25s ease, border-color .25s ease;
+}
+.ex-card::before{
+  content:"";
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:4px;
+  background:transparent;
+  transition:background .25s ease;
+}
+.ex-card.prog{
+  border-color:color-mix(in srgb, var(--accent-a) 40%, var(--color-border-tertiary, #222227));
+}
+.ex-card.prog::before{background:var(--accent-a);}
+.ex-card.done{
+  background:color-mix(in srgb, var(--done) 5%, var(--color-background-primary, #16161a));
+  border-color:color-mix(in srgb, var(--done) 35%, var(--color-border-tertiary, #222227));
+}
+.ex-card.done::before{background:var(--done);}
+
+.card-hdr{
+  padding:15px 18px 15px 22px;
+  cursor:pointer;
+  user-select:none;
+  transition:background .15s;
+}
+.card-hdr:hover{background:var(--color-background-secondary, #1f1f24);}
+.ex-card.done .card-hdr:hover{background:color-mix(in srgb, var(--done) 10%, var(--color-background-primary, #16161a));}
+.ex-card.prog .card-hdr:hover{background:color-mix(in srgb, var(--accent-a) 5%, var(--color-background-primary, #16161a));}
+
+.card-hdr-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.ex-title-wrap{flex:1;min-width:0;}
+.ex-title-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:5px;
+}
+.ex-name{
+  font-size:15.5px;
+  font-weight:500;
+  color:var(--color-text-primary, #f1f1f3);
+  line-height:1.3;
+  letter-spacing:-0.01em;
+}
+.ex-done-icon{
+  font-size:16px;
+  color:var(--done);
+  line-height:1;
+}
+.ex-muscles{
+  font-size:12px;
+  color:var(--color-text-tertiary, #6a6a71);
+  line-height:1.5;
+}
+.ex-chev{
+  font-size:16px;
+  color:var(--color-text-tertiary, #6a6a71);
+  flex-shrink:0;
+  margin-top:2px;
+  transition:color .15s;
+}
+.card-hdr:hover .ex-chev{color:var(--color-text-primary, #f1f1f3);}
+
+.reps-badge{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  font-weight:600;
+  color:var(--color-text-secondary, #a3a3a9);
+  background:var(--color-background-secondary, #1f1f24);
+  border:1px solid var(--color-border-tertiary, #222227);
+  padding:3px 9px;
+  border-radius:999px;
+  white-space:nowrap;
+  flex-shrink:0;
+  letter-spacing:0.03em;
+  text-transform:uppercase;
+}
+
+/* Last time display */
+.last-time{
+  display:flex;
+  gap:10px;
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  color:var(--color-text-tertiary, #6a6a71);
+  margin-bottom:10px;
+  overflow:hidden;
+}
+.last-time-date{flex-shrink:0;}
+.last-time-sets{flex-shrink:0;}
+.last-time-note{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  min-width:0;
+}
+
+/* Set chips — bigger, tactile */
+.set-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.bubble{
+  width:42px; height:42px;
+  border-radius:11px;
+  border:1.5px solid var(--color-border-tertiary, #222227);
+  background:var(--color-background-primary, #16161a);
+  color:var(--color-text-tertiary, #6a6a71);
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:14.5px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .15s ease;
+  flex-shrink:0;
+  letter-spacing:-0.01em;
+}
+.bubble:hover:not(.on){
+  border-color:var(--color-text-primary, #f1f1f3);
+  color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-secondary, #1f1f24);
+}
+.bubble.on{
+  background:var(--done);
+  border-color:var(--done);
+  color:#fff;
+  animation:pop .25s ease;
+}
+.bubble.on i{font-size:18px !important;}
+@keyframes pop{
+  0%{transform:scale(.85);}
+  60%{transform:scale(1.08);}
+  100%{transform:scale(1);}
+}
+
+.set-count{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  color:var(--color-text-tertiary, #6a6a71);
+  margin-left:8px;
+  letter-spacing:0.1em;
+  font-variant-numeric:tabular-nums;
+  text-transform:uppercase;
+  font-weight:600;
+}
+
+/* Card body */
+.card-body{
+  border-top:1px solid var(--color-border-tertiary, #222227);
+  padding:16px 18px 18px 22px;
+  background:var(--color-background-primary, #16161a);
+}
+.ex-card.done .card-body{
+  border-top-color:color-mix(in srgb, var(--done) 30%, var(--color-border-tertiary, #222227));
+}
+
+.warn-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  font-weight:600;
+  background:color-mix(in srgb, var(--warn) 8%, var(--color-background-primary, #16161a));
+  color:var(--warn);
+  border:1px solid color-mix(in srgb, var(--warn) 40%, var(--color-border-tertiary, #222227));
+  border-radius:999px;
+  padding:4px 10px;
+  margin-bottom:14px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.warn-pill i{font-size:12px !important;}
+
+.tip-box{
+  position:relative;
+  padding:3px 0 3px 16px;
+  margin:0 0 14px;
+  border-left:2px solid var(--color-border-secondary, #2c2c32);
+  font-size:14px;
+  line-height:1.7;
+  color:var(--color-text-secondary, #a3a3a9);
+  background:transparent;
+  border-radius:0;
+}
+
+.ill-link{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  color:var(--color-text-primary, #f1f1f3);
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 11px;
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:999px;
+  font-weight:600;
+  transition:border-color .15s, background .15s;
+}
+.ill-link:hover{
+  border-color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-secondary, #1f1f24);
+}
+.ill-link i{font-size:13px !important;}
+
+.ex-textarea{
+  margin-top:14px;
+  width:100%;
+  font-size:13.5px;
+  padding:11px 13px;
+  resize:none;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-secondary, #1f1f24);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:10px;
+  line-height:1.55;
+  transition:border-color .15s, background .15s;
+}
+.ex-textarea::placeholder{color:var(--color-text-tertiary, #6a6a71);}
+.ex-textarea:focus{
+  outline:none;
+  border-color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-primary, #16161a);
+}
+
+/* Action buttons */
+.actions{
+  display:flex;
+  gap:8px;
+  padding:24px 0 4px;
+}
+.btn-primary{
+  flex:1;
+  padding:15px 18px;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-size:14px;
+  font-weight:500;
+  background:var(--color-text-primary, #f1f1f3);
+  color:var(--color-background-primary, #16161a);
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  letter-spacing:-0.005em;
+  transition:opacity .15s;
+}
+.btn-primary:hover{opacity:.88;}
+.btn-primary i{font-size:15px !important;}
+
+.btn-secondary{
+  padding:15px 18px;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-size:14px;
+  font-weight:500;
+  background:var(--color-background-primary, #16161a);
+  color:var(--color-text-primary, #f1f1f3);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:10px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  letter-spacing:-0.005em;
+  transition:border-color .15s, background .15s;
+}
+.btn-secondary:hover{
+  border-color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-secondary, #1f1f24);
+}
+.btn-secondary i{font-size:15px !important;}
+
+/* ============================= HISTORY ============================= */
+#hist-view{padding:22px 22px 28px;}
+
+.hist-hdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--color-border-tertiary, #222227);
+}
+.hist-title{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  color:var(--color-text-primary, #f1f1f3);
+}
+.hist-hdr .btn-secondary{
+  padding:8px 12px;
+  font-size:11px;
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  font-weight:600;
+  border-radius:999px;
+}
+.hist-hdr .btn-secondary i{font-size:13px !important;}
+
+.hist-card{
+  background:var(--color-background-primary, #16161a);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:12px;
+  padding:16px 18px;
+  margin-bottom:8px;
+}
+.hist-card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:12px;
+}
+.hist-label{
+  font-size:14px;
+  font-weight:500;
+  color:var(--color-text-primary, #f1f1f3);
+  letter-spacing:-0.005em;
+  line-height:1.3;
+}
+.hist-meta{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  color:var(--color-text-tertiary, #6a6a71);
+  margin-top:5px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.hist-bar{
+  height:4px;
+  background:var(--color-background-secondary, #1f1f24);
+  border-radius:3px;
+  overflow:hidden;
+}
+.hist-bar-fill{
+  height:100%;
+  border-radius:3px;
+}
+.hist-notes{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid var(--color-border-tertiary, #222227);
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.hist-note{
+  font-size:12.5px;
+  color:var(--color-text-secondary, #a3a3a9);
+  line-height:1.55;
+}
+.hist-note b{
+  font-weight:500;
+  color:var(--color-text-primary, #f1f1f3);
+}
+
+.badge{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:999px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.bg-g{
+  background:color-mix(in srgb, var(--done) 10%, var(--color-background-primary, #16161a));
+  color:var(--done);
+  border:1px solid color-mix(in srgb, var(--done) 40%, var(--color-border-tertiary, #222227));
+}
+.bg-a{
+  background:color-mix(in srgb, var(--warn) 8%, var(--color-background-primary, #16161a));
+  color:var(--warn);
+  border:1px solid color-mix(in srgb, var(--warn) 40%, var(--color-border-tertiary, #222227));
+}
+
+.empty{
+  text-align:center;
+  padding:64px 16px;
+  color:var(--color-text-tertiary, #6a6a71);
+  background:var(--color-background-primary, #16161a);
+  border:1px dashed var(--color-border-tertiary, #222227);
+  border-radius:12px;
+}
+.empty i{font-size:30px !important;display:block;margin-bottom:12px;}
+.empty-title{font-size:14px;color:var(--color-text-secondary, #a3a3a9);font-weight:500;}
+.empty-sub{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  margin-top:8px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+/* ============================= RUN FORM ============================= */
+#run-btn{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  padding:6px 10px;
+  background:transparent;
+  border:1px solid var(--color-border-tertiary, #222227);
+  color:var(--color-text-secondary, #a3a3a9);
+  border-radius:999px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  white-space:nowrap;
+  font-weight:600;
+  transition:color .15s, border-color .15s, background .15s;
+}
+#run-btn:hover{color:var(--color-text-primary, #f1f1f3);border-color:var(--color-text-primary, #f1f1f3);}
+
+#run-view{padding:22px 22px 28px;}
+.run-form{display:flex;flex-direction:column;gap:20px;}
+.run-field{display:flex;flex-direction:column;gap:6px;}
+.run-field-lbl{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  color:var(--color-text-tertiary, #6a6a71);
+}
+.run-select,.run-input-num{
+  font-size:13.5px;
+  padding:11px 13px;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-secondary, #1f1f24);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:10px;
+  transition:border-color .15s, background .15s;
+  width:100%;
+  -moz-appearance:textfield;
+}
+.run-input-num::-webkit-outer-spin-button,.run-input-num::-webkit-inner-spin-button{-webkit-appearance:none;}
+.run-select:focus,.run-input-num:focus{
+  outline:none;
+  border-color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-primary, #16161a);
+}
+.run-select option{background:var(--color-background-primary, #16161a);}
+.run-dist-row{display:flex;align-items:center;gap:8px;}
+.run-dist-row .run-input-num{flex:1;}
+.run-unit{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  color:var(--color-text-tertiary, #6a6a71);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  font-weight:600;
+  flex-shrink:0;
+}
+.run-time-row{display:flex;align-items:center;gap:8px;}
+.run-time-sep{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:16px;
+  color:var(--color-text-tertiary, #6a6a71);
+  flex-shrink:0;
+}
+.run-time-row .run-input-num{width:72px;flex-shrink:0;text-align:center;}
+.run-pace{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:13px;
+  color:var(--color-text-tertiary, #6a6a71);
+  margin-top:6px;
+}
+.run-field .ex-textarea{margin-top:0;}
+.run-error{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  color:var(--danger);
+  margin-top:8px;
+  display:none;
+}
+.run-error.visible{display:block;}
+.run-confirm{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  color:var(--done);
+  margin-top:8px;
+  display:none;
+}
+.run-confirm.visible{display:block;}
+
+/* ============================= COMPLETION OVERLAY ============================= */
+#completion-overlay{
+  position:absolute;
+  inset:0;
+  z-index:10;
+  background:var(--color-background-tertiary, #0c0c0f);
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:32px 22px;
+}
+.compl-card{
+  width:100%;
+  background:var(--color-background-primary, #16161a);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:16px;
+  padding:28px 24px;
+}
+.compl-eyebrow{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  color:var(--color-text-tertiary, #6a6a71);
+  margin-bottom:6px;
+}
+.compl-title{
+  font-size:20px;
+  font-weight:500;
+  color:var(--color-text-primary, #f1f1f3);
+  letter-spacing:-0.02em;
+  margin-bottom:22px;
+  line-height:1.3;
+}
+.compl-stats{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:24px;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--color-border-tertiary, #222227);
+}
+.compl-stat-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.compl-stat-name{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10.5px;
+  color:var(--color-text-tertiary, #6a6a71);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+  font-weight:600;
+}
+.compl-stat-val{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:14px;
+  color:var(--color-text-primary, #f1f1f3);
+  font-weight:500;
+  letter-spacing:-0.01em;
+}
+.compl-actions{
+  display:flex;
+  gap:8px;
+}
+</style>
+
+<div id="wrap">
+  <div class="sticky-hdr">
+
+    <div class="hdr-top">
+      <div class="hdr-brand">
+        <span class="hdr-mark"><i class="ti ti-barbell" aria-hidden="true"></i></span>
+        <span class="hdr-name">Lennart's training</span>
+      </div>
+      <div class="hdr-right">
+        <span id="date-disp" class="hdr-date"></span>
+        <button onclick="toggleView()" id="view-btn">
+          <i class="ti ti-history" aria-hidden="true"></i>
+          <span>History</span>
+        </button>
+        <button onclick="toggleRunView()" id="run-btn">
+          <i class="ti ti-run" aria-hidden="true"></i>
+          <span>Log run</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-block">
+        <div id="timer-disp">--:--</div>
+        <div class="hero-label">Elapsed</div>
+        <button id="timer-btn" onclick="toggleTimer()">
+          <i class="ti ti-player-play" aria-hidden="true"></i>
+          <span>Start</span>
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span id="prog-pct">0%</span>
+          <span class="hero-stat-lbl">complete</span>
+        </div>
+        <div class="hero-stat">
+          <span id="prog-sets">0 / 0</span>
+          <span class="hero-stat-lbl">sets</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="prog-bar-row">
+      <div class="prog-bar"><div id="prog-fill"></div></div>
+    </div>
+
+    <div class="sess-row">
+      <button class="sess-tab on-a" id="tab-A" onclick="switchSession('A')">
+        <span class="sess-key">A</span>
+        <span class="sess-info">
+          <span class="sess-info-title">Push + core</span>
+          <span class="sess-info-day">Monday</span>
+        </span>
+      </button>
+      <button class="sess-tab" id="tab-B" onclick="switchSession('B')">
+        <span class="sess-key">B</span>
+        <span class="sess-info">
+          <span class="sess-info-title">Pull + core</span>
+          <span class="sess-info-day">Saturday</span>
+        </span>
+      </button>
+    </div>
+
+    <div id="rest-row" style="display:none;">
+      <span class="rest-label">Rest</span>
+      <span id="rest-cnt"></span>
+      <div class="rest-bar"><div id="rest-fill"></div></div>
+      <button onclick="stopRest()" class="rest-skip">Skip</button>
+    </div>
+
+  </div>
+
+  <div id="workout-view">
+    <div id="ex-list"></div>
+    <div class="actions">
+      <button onclick="saveSession()" class="btn-primary">
+        <i class="ti ti-device-floppy" aria-hidden="true"></i>
+        <span>Save session</span>
+      </button>
+      <button onclick="exportJSON()" class="btn-secondary">
+        <i class="ti ti-download" aria-hidden="true"></i>
+        <span>Export JSON</span>
+      </button>
+      <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
+        <i class="ti ti-upload" aria-hidden="true"></i>
+        <span>Import</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="hist-view" style="display:none;">
+    <div class="hist-hdr">
+      <div class="hist-title">Session history</div>
+      <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
+        <i class="ti ti-upload" aria-hidden="true"></i>
+        <span>Import JSON</span>
+      </button>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+
+  <div id="run-view" style="display:none;">
+    <div class="run-form">
+
+      <div class="run-field">
+        <label class="run-field-lbl" for="run-date">Date</label>
+        <input id="run-date" class="run-select" type="date">
+      </div>
+
+      <div class="run-field">
+        <label class="run-field-lbl" for="run-type">Run type</label>
+        <select id="run-type" class="run-select">
+          <option>Easy</option>
+          <option>Long run</option>
+          <option>Tempo</option>
+          <option>Intervals</option>
+          <option>Race</option>
+        </select>
+      </div>
+
+      <div class="run-field">
+        <label class="run-field-lbl" for="run-dist">Distance</label>
+        <div class="run-dist-row">
+          <input id="run-dist" class="run-input-num" type="number" step="0.1" min="0" placeholder="0.0" oninput="updatePace()">
+          <span class="run-unit">km</span>
+        </div>
+      </div>
+
+      <div class="run-field">
+        <label class="run-field-lbl">Time</label>
+        <div class="run-time-row">
+          <input id="run-hh" class="run-input-num" type="number" min="0" max="23" placeholder="HH" oninput="updatePace()">
+          <span class="run-time-sep">:</span>
+          <input id="run-mm" class="run-input-num" type="number" min="0" max="59" placeholder="MM" oninput="updatePace()">
+          <span class="run-time-sep">:</span>
+          <input id="run-ss" class="run-input-num" type="number" min="0" max="59" placeholder="SS" oninput="updatePace()">
+        </div>
+        <div id="run-pace" class="run-pace">—</div>
+      </div>
+
+      <div class="run-field">
+        <label class="run-field-lbl" for="run-notes">Notes</label>
+        <textarea id="run-notes" class="ex-textarea" rows="2" placeholder="How it felt, conditions, route..."></textarea>
+      </div>
+
+      <div class="run-field">
+        <button onclick="saveRun()" class="btn-primary">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i>
+          <span>Save run</span>
+        </button>
+        <div id="run-error" class="run-error">Enter distance and time before saving.</div>
+        <div id="run-confirm" class="run-confirm">Run saved.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="completion-overlay"></div>
+
+  <input type="file" id="file-in" accept=".json" style="display:none;" onchange="loadHistory(event)"/>
+</div>
+
+<script>
+const ACCENT={A:'#2E75B6',B:'#1B3A5C'};
+
+const DATA={
+  A:{name:'Session A',sub:'Push · core · balance',day:'Monday',
+    blocks:[
+      {lbl:'Warm-up · 5 min',exs:[
+        {id:'wu1',name:'TRX chest stretch',muscles:'Pectorals · anterior shoulder capsule',sets:1,reps:'30 sec/side',rest:0,url:'https://www.trxtraining.com/blogs/news/trx-exercises',tip:"Stand beside the anchor, one arm extended back holding a handle, and rotate your torso away until you feel a stretch across the chest and front shoulder. Hold 30 seconds. Switch sides. Do this before any pressing — it improves shoulder range and reduces injury risk on push days."},
+        {id:'wu2',name:'Arm circles + shoulder rolls',muscles:'Rotator cuff · deltoid · upper traps',sets:1,reps:'10 each direction',rest:0,url:'https://www.acefitness.org/resources/everyone/exercise-library/',tip:"Stand tall, arms at sides. Circle both arms forward 10 times — start small and gradually widen the arc. Reverse for 10. Then shrug both shoulders up toward ears and roll them back and down in slow circles. This warms up the full rotator cuff and primes the shoulder joint for overhead and pressing work."},
+        {id:'wu3',name:'Scapular retractions',muscles:'Rhomboids · mid traps · rear deltoid',sets:1,reps:'10 reps, 2 sec hold',rest:0,url:'https://www.acefitness.org/resources/everyone/exercise-library/',tip:"Stand or sit tall. Squeeze your shoulder blades together as hard as you can — think about trying to hold a pencil between them. Hold for 2 seconds, then fully release. This activates the mid-back muscles that stabilise every pushing and pulling movement. Critical for shoulder health."},
+        {id:'wu4',name:"World's greatest stretch",muscles:'Hip flexors · thoracic spine · glutes · hamstrings',sets:1,reps:'5 reps/side',rest:0,url:'https://www.acefitness.org/resources/everyone/exercise-library/',tip:"Step into a deep lunge. Place the same-side hand on the floor beside your foot, then rotate your opposite arm up toward the ceiling, following it with your eyes. Hold briefly, return, and repeat. This single movement opens the hips, thoracic spine, and shoulders simultaneously — one of the highest-value warm-up drills available."},
+      ]},
+      {lbl:'Block 1 — push compound',exs:[
+        {id:'pushup',name:'Push-up (+ progressions)',muscles:'Chest · anterior deltoid · triceps · core',sets:4,reps:'10–12',rest:120,url:'https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/',tip:"Hands shoulder-width apart, body a straight line from head to heels — no hips sagging or piking. Lower your chest to just above the floor with elbows at roughly 45° from your body, then press back up. Progression order: standard → decline (feet on chair or step) → archer (one arm extended wide while the other presses) → one-arm. Move to the next level when you can complete all 4 sets cleanly.",note:null},
+        {id:'pike',name:'Pike push-up',muscles:'Anterior deltoid · upper chest · triceps',sets:3,reps:'8–10',rest:90,url:'https://www.healthline.com/health/decline-push-up',tip:"Start in a downward-dog position with your hips high, forming a triangle with the floor. Bend your elbows and lower your forehead toward the floor between your hands, then press back up. The steeper the angle of your body, the more this becomes a shoulder-dominant movement and the less it resembles a chest press. Elevating your feet makes it harder and shifts load further onto the shoulders."},
+      ]},
+      {lbl:'Block 2 — shoulder isolation',exs:[
+        {id:'trx_yfly',name:'TRX Y-fly',muscles:'Anterior deltoid · upper traps · serratus anterior',sets:3,reps:'12–15',rest:90,url:'https://www.trxtraining.com/blogs/news/trx-shoulder-exercises',tip:"Face the TRX anchor with feet forward, lean back to create tension — the further back you lean, the harder it gets. With arms straight and thumbs pointing up, raise both arms up and out to form a Y overhead. Control the lowering phase completely. This replaces the band overhead press. Unlike a strict press, it keeps continuous tension throughout the range of motion, which the band couldn't do at higher loads.",warn:"Replaces band overhead press (bands damaged)"},
+        {id:'trx_traise',name:'TRX T-raise',muscles:'Middle deltoid · rhomboids · posterior shoulder',sets:3,reps:'12–15',rest:90,url:'https://www.trxtraining.com/blogs/news/trx-shoulder-exercises',tip:"Same leaning position as the Y-fly. Raise both straight arms out to the sides until they form a T with your body, palms facing down. Squeeze your shoulder blades together at the top and hold for one second before lowering slowly. This is the TRX equivalent of a lateral raise — it targets the middle deltoid through a loaded stretch that bands can't replicate at high tension.",warn:"Replaces band lateral raise (bands damaged)"},
+        {id:'trxtri',name:'TRX tricep extension',muscles:'Triceps · core stabilisers',sets:3,reps:'10–12',rest:75,url:'https://www.acefitness.org/resources/everyone/exercise-library/80/trx-reg-overhead-triceps-extension/',tip:"Face away from the anchor. Hold the handles with elbows bent to 90°, hands near your forehead, and lean your body forward — the more forward you lean, the harder it is. Extend both elbows by pressing your forearms forward and up, keeping your upper arms fixed and elbows high throughout. Lower slowly with control. The instability of the TRX forces your core to work as a stabiliser at the same time."},
+      ]},
+      {lbl:'Block 3 — core',exs:[
+        {id:'plank',name:'Plank hold',muscles:'Transverse abdominis · glutes · shoulders',sets:3,reps:'30–45 sec',rest:60,url:'https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/',tip:"Forearms on the mat, elbows directly under your shoulders, body a straight line from head to heels. Squeeze your glutes hard and brace your core as if you're about to take a punch. Breathe steadily and don't hold your breath. When your form breaks — hips dropping or piking, lower back arching — stop. Quality beats duration every time. Build from 30 seconds toward 60 before adding time."},
+        {id:'deadbug',name:'Dead bug',muscles:'Deep core · hip flexors · lower back stabilisers',sets:3,reps:'8 reps/side',rest:60,url:'https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/',tip:"Lie on your back, arms pointing straight to the ceiling, knees bent at 90° directly above your hips. The critical cue: press your entire lower back into the mat and keep it there throughout every rep. Slowly lower your right arm overhead and left leg toward the floor simultaneously, stopping just before your back lifts, then return and switch sides. This works the deep core in a way that sit-ups don't, with no sliding."},
+        {id:'sideplnk',name:'Side plank',muscles:'Obliques · glute medius · shoulders',sets:2,reps:'30 sec/side',rest:60,url:'https://www.acefitness.org/resources/everyone/exercise-library/303/side-plank/',tip:"Elbow directly under your shoulder, feet stacked or staggered for stability. Lift your hips so your body forms a straight diagonal line from head to heels — resist the urge to let your top hip roll forward. Keep your gaze forward, not down. Progress by adding hip dips (the Session B version) once 30 seconds feels manageable."},
+      ]},
+      {lbl:'Balance · 5 min',exs:[
+        {id:'vor_a',name:'VOR tracking (chiropractor)',muscles:'Vestibular · oculomotor · cerebellum',sets:2,reps:'10 sweeps × 2 planes × 2 feet',rest:0,url:'https://www.healthline.com/health/vestibular-exercises',tip:"Semi-tandem stance: take a half step forward with feet on either side of an imaginary midline. Extend one arm with thumb up, cover the other eye with your free hand. Tracking your thumb with your open eye, sweep your arm slowly all the way up over your head and back down (vertical plane), then repeat sweeping side to side (horizontal). Switch which foot is forward and repeat. This trains your vestibulo-ocular reflex — the integration of balance, vision, and movement that supports everything from running to skating."},
+        {id:'bal_a',name:'Single leg balance',muscles:'Proprioception · ankle stabilisers · glute medius',sets:1,reps:'30 sec × 4  (each leg, eyes open + closed)',rest:0,url:'https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/',tip:"Stand on one foot with a soft knee bend, gaze fixed on a still point in front of you. Hold 30 seconds. Then close your eyes — this removes visual input and forces your vestibular and proprioceptive systems to work harder. It's dramatically more difficult. Progress over weeks by adding slow head turns while balancing, then arm movements."},
+      ]},
+    ]
+  },
+  B:{name:'Session B',sub:'Pull · core · balance',day:'Saturday',
+    blocks:[
+      {lbl:'Warm-up · 5 min',exs:[
+        {id:'wu_b1',name:'TRX chest stretch',muscles:'Pectorals · anterior shoulder',sets:1,reps:'30 sec/side',rest:0,url:'https://www.trxtraining.com/blogs/news/trx-exercises',tip:"Stand beside the anchor holding a single handle, arm extended behind you. Rotate your torso away from the anchor until you feel the stretch across your chest and front shoulder. Hold 30 seconds and switch. Especially useful before a pull session because tight chest muscles restrict how far you can retract your shoulder blades during rows."},
+        {id:'wu_b2',name:'Band pull-aparts',muscles:'Rear deltoid · rhomboids · mid traps',sets:1,reps:'15 reps',rest:0,url:'https://www.healthline.com/health/fitness/back-exercises-with-bands',tip:"Hold the band at shoulder width with both hands in front of you, arms straight. Pull the band apart by driving both hands outward until you reach a T-shape, squeezing your rear delts hard at the end range. Use your lightest band — this is activation work, not loading work. Keep the bands for low-tension exercises only.",warn:"Light bands only — use lowest tension available"},
+        {id:'wu_b3',name:'Cat-cow + scapular retractions',muscles:'Thoracic spine · rhomboids · core',sets:1,reps:'10 cat-cows + 10 retractions',rest:0,url:'https://www.acefitness.org/resources/everyone/exercise-library/',tip:"On hands and knees: arch your back up (cat) then dip it down and lift your head (cow). Move slowly through 10 full cycles. Then transition to seated or standing scapular retractions — squeeze shoulder blades together as far as possible, hold 2 seconds, release fully. This primes the mid-back muscles that drive every pulling movement in this session."},
+      ]},
+      {lbl:'Block 1 — pull compound',exs:[
+        {id:'trxrow',name:'TRX row',muscles:'Lats · rhomboids · rear deltoid · biceps · core',sets:4,reps:'10–12',rest:150,url:'https://www.acefitness.org/resources/everyone/exercise-library/84/trx-reg-back-row/',tip:"Face the anchor, hold handles with palms facing each other. Walk your feet forward until your body is at your working angle — 45° is moderate, nearly horizontal is hard. Pull your chest to the handles by retracting your shoulder blades first, then driving your elbows back. Squeeze hard at the top. Lower slowly with full arm extension. This is your most important exercise given your arm scan data — give it your best sets first.",note:"Priority exercise — your scan showed arms at 1.3/1.4 kg. This is the primary driver."},
+        {id:'trxface',name:'TRX face pull',muscles:'Rear deltoid · external rotators · rhomboids · lower traps',sets:3,reps:'12–15',rest:90,url:'https://www.trxtraining.com/blogs/news/trx-shoulder-exercises',tip:"Face the anchor with arms extended at eye level. Pull both hands toward your face with your elbows flaring high and wide — like a double bicep pose. The key is to lead with your elbows, not your hands, and to squeeze your rear delts and external rotators hard at the end range. Hold for one second at peak contraction. This is corrective work for shoulder health and posture — take it slow, don't rush the reps."},
+      ]},
+      {lbl:'Block 2 — bicep & upper back isolation',exs:[
+        {id:'supine',name:'TRX supine row (underhand)',muscles:'Biceps · brachialis · lower lats',sets:3,reps:'10–12',rest:90,url:'https://www.acefitness.org/resources/everyone/exercise-library/78/trx-reg-biceps-curl/',tip:"Same position as the TRX row but rotate your grip so your palms face upward (supinated). This shift moves a significant portion of the load from your lats onto your biceps and brachialis. Pull toward your lower chest or upper abdomen, keeping your elbows close to your body. This is a key exercise for addressing your arm muscle deficit from the scan."},
+        {id:'bcurl',name:'Band bicep curl',muscles:'Biceps brachii · brachialis · brachioradialis',sets:3,reps:'12–15',rest:75,url:'https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/',tip:"Stand on the centre of the band with both feet, a handle in each hand, palms forward. Keeping your elbows pinned to your sides — they act as a hinge, not a lever — curl both handles toward your shoulders. Squeeze hard at the top. Then lower slowly over 3 full seconds. The eccentric (lowering) phase produces more muscle damage and therefore more growth stimulus than the curl itself. Resist the urge to drop the weight.",warn:"Light bands only — use lowest tension available"},
+        {id:'pullap',name:'Band pull-apart',muscles:'Rear deltoid · rhomboids · mid and lower traps',sets:3,reps:'15–20',rest:60,url:'https://www.healthline.com/health/fitness/back-exercises-with-bands',tip:"Hold the band at shoulder width, arms straight in front of you, palms down. Pull the band apart by driving both hands outward until your arms form a T. Squeeze your rear delts and hold for one second at the widest point. Control the return — don't let the band snap back. This looks deceptively easy; by rep 15 with a full squeeze at each rep, you'll feel it. Keep this as a light band exercise only.",warn:"Light bands only — keep tension low"},
+      ]},
+      {lbl:'Block 3 — core',exs:[
+        {id:'trxplnk',name:'TRX plank (feet in straps)',muscles:'Full core · shoulders · serratus anterior',sets:3,reps:'20–30 sec',rest:60,url:'https://www.trxtraining.com/blogs/news/trx-weekly-exercise-trx-plank',tip:"Place both feet in the TRX foot cradles with toes pointed. Walk your hands out until you're in a push-up position with straight arms. Brace everything — squeeze your glutes, brace your core, push the floor away with your hands. The instability of the suspension trainer means your core has to work significantly harder than on a floor plank. Start with 20 seconds and build from there."},
+        {id:'tap',name:'Plank shoulder taps',muscles:'Core · obliques · anti-rotation',sets:3,reps:'10 taps/side',rest:60,url:'https://www.healthline.com/health/14-plank-variations-your-core-will-thank-you-for-later',tip:"High plank position on straight arms. Keeping your hips absolutely level — this is everything — lift your right hand and tap your left shoulder, then return it to the floor before moving the other hand. If your hips rock side to side, widen your foot stance slightly until you can control it, then narrow over time. Slow and controlled is the only way this exercise does what it's supposed to do."},
+        {id:'hollow',name:'Hollow hold',muscles:'Transverse abdominis · rectus abdominis · hip flexors',sets:3,reps:'20–30 sec',rest:60,url:'https://www.healthline.com/nutrition/hollow-hold',tip:"Lie on your back and press your entire lower back into the floor — this is the non-negotiable starting point. Extend arms overhead and legs straight, then lift arms, head, shoulders and legs slightly off the floor. The lower your legs, the harder it is. If your lower back lifts off the floor at any point, raise your legs higher until it doesn't. This is a gymnastics staple and one of the best pure anterior core exercises."},
+        {id:'sidedip',name:'Side plank with hip dip',muscles:'Obliques · glute medius · hip abductors',sets:2,reps:'10 reps/side',rest:60,url:'https://www.healthline.com/health/14-plank-variations-your-core-will-thank-you-for-later',tip:"Get into a side plank — elbow under shoulder, body straight. From there, lower your hip toward the floor without touching it, then drive it back up past neutral, pausing briefly at the top. One dip + one drive = one rep. Keep your torso from rotating throughout — the rotation is the failure mode. This is the loaded progression from the static side plank in Session A."},
+      ]},
+      {lbl:'Balance · 8 min',exs:[
+        {id:'rdl',name:'Single leg RDL (bodyweight)',muscles:'Hamstrings · glutes · proprioception',sets:3,reps:'8 reps/side',rest:60,url:'https://www.acefitness.org/resources/everyone/exercise-library/329/single-leg-romanian-deadlift/',tip:"Stand on one leg with a soft knee bend. Hinge at your hip — not your waist — and reach your torso forward while your free leg extends straight behind you as a counterbalance. Think of your body as a lever pivoting at the hip, not folding at the spine. Hold the lowest position for one second, then drive through your glute to return to standing. Your legs are already strong from hockey — the challenge here is balance and control, not strength."},
+        {id:'vor_b',name:'VOR tracking (chiropractor)',muscles:'Vestibular · oculomotor · cerebellum',sets:2,reps:'10 sweeps × 2 planes × 2 feet',rest:0,url:'https://www.healthline.com/health/vestibular-exercises',tip:"Semi-tandem stance, one eye covered, track your thumb through the vertical and horizontal planes. Switch foot position and repeat. The progression over the coming weeks is to narrow your stance: semi-tandem → near-tandem → full heel-to-toe tandem. The heel-to-toe position removes almost all base of support and forces near-total reliance on your vestibular system. Expect this to take months to master."},
+        {id:'bal_b',name:'Single leg balance',muscles:'Proprioception · ankle stabilisers',sets:1,reps:'30 sec × 4  (each leg, eyes open + closed)',rest:0,url:'https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/',tip:"Hold for 30 seconds on each leg with eyes open, then repeat with eyes closed. In Session B, after the single leg RDL, your stabilisers will be more fatigued — so the balance challenge is harder than it looks. Progress by adding slow head turns left and right while holding the balance."},
+      ]},
+    ]
+  }
+};
+
+let S={sess:'A',view:'workout',sets:{},notes:{},exp:{},wStart:null,elapsed:0,restSecs:0,restDuration:90,history:[],timerState:'idle',accumulatedMs:0};
+let elInt=null,restInt=null;
+
+function allExs(k){return DATA[k].blocks.flatMap(b=>b.exs);}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('date-disp').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  try{
+    const stored=localStorage.getItem('training_history');
+    if(stored){const parsed=JSON.parse(stored);if(Array.isArray(parsed))S.history=parsed;}
+  }catch(e){S.history=[];}
+  render();updateProg();updateTimerBtn();
+});
+
+function switchSession(k){
+  if(k===S.sess)return;
+  if(S.wStart&&!confirm('Switch session? Current progress will be cleared.'))return;
+  S.sess=k;S.sets={};S.notes={};S.exp={};S.wStart=null;S.elapsed=0;S.timerState='idle';S.accumulatedMs=0;
+  clearInterval(elInt);
+  const td=document.getElementById('timer-disp');
+  td.textContent='--:--';td.style.color='var(--color-text-tertiary, #6a6a71)';
+  stopRest();
+  document.getElementById('tab-A').className='sess-tab'+(k==='A'?' on-a':'');
+  document.getElementById('tab-B').className='sess-tab'+(k==='B'?' on-b':'');
+  document.getElementById('prog-fill').style.background=ACCENT[k];
+  render();updateProg();updateTimerBtn();
+}
+
+function setView(v){
+  S.view=v;
+  document.getElementById('workout-view').style.display=v==='workout'?'':'none';
+  document.getElementById('hist-view').style.display=v==='history'?'':'none';
+  document.getElementById('run-view').style.display=v==='run'?'':'none';
+  document.getElementById('view-btn').innerHTML=v==='history'
+    ?'<i class="ti ti-arrow-left" aria-hidden="true"></i><span>Workout</span>'
+    :'<i class="ti ti-history" aria-hidden="true"></i><span>History</span>';
+  document.getElementById('run-btn').innerHTML=v==='run'
+    ?'<i class="ti ti-arrow-left" aria-hidden="true"></i><span>Back</span>'
+    :'<i class="ti ti-run" aria-hidden="true"></i><span>Log run</span>';
+  if(v==='history')renderHist();
+}
+
+function toggleView(){setView(S.view==='history'?'workout':'history');}
+function toggleRunView(){
+  if(S.view!=='run')document.getElementById('run-date').value=new Date().toISOString().split('T')[0];
+  setView(S.view==='run'?'workout':'run');
+}
+
+function updatePace(){
+  const dist=parseFloat(document.getElementById('run-dist').value)||0;
+  const hh=parseInt(document.getElementById('run-hh').value)||0;
+  const mm=parseInt(document.getElementById('run-mm').value)||0;
+  const ss=parseInt(document.getElementById('run-ss').value)||0;
+  const totalSecs=hh*3600+mm*60+ss;
+  const el=document.getElementById('run-pace');
+  if(dist>0&&totalSecs>0){
+    const paceDecimal=totalSecs/60/dist;
+    const paceMin=Math.floor(paceDecimal);
+    const paceSec=String(Math.round((paceDecimal-paceMin)*60)).padStart(2,'0');
+    el.textContent=paceMin+':'+paceSec+' min/km';
+  }else{
+    el.textContent='—';
+  }
+}
+
+function saveRun(){
+  const dist=parseFloat(document.getElementById('run-dist').value)||0;
+  const hh=parseInt(document.getElementById('run-hh').value)||0;
+  const mm=parseInt(document.getElementById('run-mm').value)||0;
+  const ss=parseInt(document.getElementById('run-ss').value)||0;
+  const totalSecs=hh*3600+mm*60+ss;
+  const date=document.getElementById('run-date').value;
+  const errEl=document.getElementById('run-error');
+  const confEl=document.getElementById('run-confirm');
+  errEl.classList.remove('visible');confEl.classList.remove('visible');
+  if(!date||dist<=0||totalSecs<=0){errEl.classList.add('visible');return;}
+  const runType=document.getElementById('run-type').value;
+  const paceDecimal=totalSecs/60/dist;
+  const entry={
+    date:date,
+    sessionType:'run',
+    sessionLabel:runType+' · '+dist+'km',
+    durationSeconds:totalSecs,
+    distanceKm:dist,
+    paceMinPerKm:paceDecimal,
+    runType:runType,
+    notes:document.getElementById('run-notes').value,
+    completed:true
+  };
+  const hist=[entry,...S.history];
+  S.history=hist;
+  localStorage.setItem('training_history',JSON.stringify(hist));
+  document.getElementById('run-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('run-dist').value='';
+  document.getElementById('run-hh').value='';
+  document.getElementById('run-mm').value='';
+  document.getElementById('run-ss').value='';
+  document.getElementById('run-notes').value='';
+  document.getElementById('run-pace').textContent='—';
+  confEl.classList.add('visible');
+  setTimeout(()=>confEl.classList.remove('visible'),3000);
+}
+
+function findLastEntry(exId){
+  for(const sess of S.history){
+    const entry=(sess.exercises||[]).find(e=>e.id===exId);
+    if(entry)return{...entry,date:sess.date};
+  }
+  return null;
+}
+
+function formatDate(iso){
+  const d=new Date(iso+'T00:00:00');
+  return d.getDate()+' '+d.toLocaleDateString('en-GB',{month:'short'});
+}
+
+function render(){
+  const d=DATA[S.sess];const el=document.getElementById('ex-list');el.innerHTML='';
+  d.blocks.forEach(blk=>{
+    const div=document.createElement('div');
+    div.className='blk-div';
+    div.innerHTML=`<div class="blk-div-line"></div><span class="blk-div-lbl">${blk.lbl}</span><div class="blk-div-line"></div>`;
+    el.appendChild(div);
+    blk.exs.forEach(ex=>{
+      const arr=S.sets[ex.id]||Array(ex.sets).fill(false);
+      const done=arr.filter(Boolean).length;const allDone=done===ex.sets;const inProg=done>0&&!allDone;
+      const card=document.createElement('div');
+      card.className='ex-card'+(allDone?' done':inProg?' prog':'');
+
+      const lastEntry=findLastEntry(ex.id);
+      let lastTimeHtml='';
+      if(lastEntry){
+        const dateStr=formatDate(lastEntry.date);
+        const rawNote=lastEntry.notes||'';
+        const note=rawNote.length>60?rawNote.slice(0,60)+'…':rawNote;
+        lastTimeHtml=`<div class="last-time"><span class="last-time-date">${dateStr}</span><span class="last-time-sets">${lastEntry.setsCompleted}/${lastEntry.totalSets} sets</span>${note?`<span class="last-time-note">${note}</span>`:''}</div>`;
+      }
+
+      const hdr=document.createElement('div');
+      hdr.className='card-hdr';
+      hdr.onclick=()=>toggleExp(ex.id);
+      hdr.innerHTML=`
+        <div class="card-hdr-top">
+          <div class="ex-title-wrap">
+            <div class="ex-title-row">
+              <span class="ex-name">${ex.name}</span>
+              <span class="reps-badge">${ex.reps}</span>
+              ${allDone?'<i class="ti ti-circle-check-filled ex-done-icon" aria-hidden="true"></i>':''}
+            </div>
+            <div class="ex-muscles">${ex.muscles}</div>
+          </div>
+          <i class="ti ti-chevron-${S.exp[ex.id]?'up':'down'} ex-chev" aria-hidden="true"></i>
+        </div>
+        ${lastTimeHtml}
+        <div class="set-row">
+          ${arr.map((_,i)=>`<button class="bubble${arr[i]?' on':''}" onclick="event.stopPropagation();toggleSet('${ex.id}',${i})" aria-label="Set ${i+1}">${arr[i]?'<i class="ti ti-check" aria-hidden="true"></i>':(i+1)}</button>`).join('')}
+          <span class="set-count">${done}/${ex.sets}</span>
+        </div>`;
+      card.appendChild(hdr);
+      if(S.exp[ex.id]){
+        const body=document.createElement('div');
+        body.className='card-body';
+        body.innerHTML=`
+          ${ex.warn?`<div class="warn-pill"><i class="ti ti-alert-triangle" aria-hidden="true"></i>${ex.warn}</div>`:''}
+          <div class="tip-box">${ex.tip}</div>
+          <a class="ill-link" href="${ex.url}" target="_blank" rel="noopener"><i class="ti ti-external-link" aria-hidden="true"></i><span>Illustration &amp; instructions</span></a>
+          <textarea class="ex-textarea" rows="2" placeholder="Notes — variation used, how it felt, any weight..." oninput="S.notes['${ex.id}']=this.value">${S.notes[ex.id]||''}</textarea>`;
+        card.appendChild(body);
+      }
+      el.appendChild(card);
+    });
+  });
+}
+
+function toggleExp(id){S.exp[id]=!S.exp[id];render();}
+
+function toggleSet(id,i){
+  const ex=allExs(S.sess).find(e=>e.id===id);
+  const arr=S.sets[id]||Array(ex.sets).fill(false);
+  const was=arr[i];const upd=[...arr];upd[i]=!was;S.sets[id]=upd;
+  if(!was){
+    if(S.timerState==='idle')startEl();
+    const restDur=ex.rest===0?0:(ex.rest!=null?ex.rest:90);
+    if(restDur>0)startRest(restDur);
+  }
+  render();updateProg();
+}
+
+function updateProg(){
+  const exs=allExs(S.sess);
+  const tot=exs.reduce((s,e)=>s+e.sets,0);
+  const done=exs.reduce((s,e)=>s+((S.sets[e.id]||[]).filter(Boolean).length),0);
+  const pct=tot>0?Math.round(done/tot*100):0;
+  document.getElementById('prog-sets').textContent=done+' / '+tot;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+function updateTimerBtn(){
+  const btn=document.getElementById('timer-btn');
+  if(S.timerState==='running'){
+    btn.innerHTML='<i class="ti ti-player-pause" aria-hidden="true"></i><span>Pause</span>';
+  }else if(S.timerState==='paused'){
+    btn.innerHTML='<i class="ti ti-player-play" aria-hidden="true"></i><span>Resume</span>';
+  }else{
+    btn.innerHTML='<i class="ti ti-player-play" aria-hidden="true"></i><span>Start</span>';
+  }
+}
+
+function startEl(){
+  S.wStart=Date.now();
+  S.timerState='running';
+  const td=document.getElementById('timer-disp');
+  td.style.color='var(--color-text-primary, #f1f1f3)';
+  clearInterval(elInt);
+  elInt=setInterval(()=>{
+    S.elapsed=Math.floor((S.accumulatedMs+Date.now()-S.wStart)/1000);
+    const m=String(Math.floor(S.elapsed/60)).padStart(2,'0'),s=String(S.elapsed%60).padStart(2,'0');
+    td.textContent=m+':'+s;
+  },1000);
+  updateTimerBtn();
+}
+
+function pauseEl(){
+  S.accumulatedMs+=Date.now()-S.wStart;
+  S.wStart=null;
+  S.timerState='paused';
+  clearInterval(elInt);
+  if(S.restSecs>0){
+    clearInterval(restInt);
+    document.getElementById('rest-row').style.display='none';
+  }
+  updateTimerBtn();
+}
+
+function toggleTimer(){
+  if(S.timerState==='idle'||S.timerState==='paused')startEl();
+  else pauseEl();
+}
+
+function startRest(duration){
+  S.restDuration=duration;S.restSecs=duration;clearInterval(restInt);
+  document.getElementById('rest-row').style.display='flex';
+  updRest();
+  restInt=setInterval(()=>{if(S.restSecs>0){S.restSecs--;updRest();}else stopRest();},1000);
+}
+
+function updRest(){
+  const pct=S.restDuration>0?(S.restSecs/S.restDuration*100).toFixed(1):'100';
+  document.getElementById('rest-cnt').textContent=S.restSecs+'s';
+  document.getElementById('rest-fill').style.width=pct+'%';
+  const ratio=S.restDuration>0?S.restSecs/S.restDuration:0;
+  document.getElementById('rest-fill').style.background=ratio>0.5?'#22C55E':ratio>0.17?'#F59E0B':'#EF4444';
+}
+
+function stopRest(){clearInterval(restInt);S.restSecs=0;document.getElementById('rest-row').style.display='none';}
+
+function saveSession(){
+  const exs=allExs(S.sess);const d=DATA[S.sess];
+  const sess={
+    date:new Date().toISOString().split('T')[0],sessionType:S.sess,
+    sessionLabel:d.name+' — '+d.sub,durationSeconds:S.elapsed,
+    exercises:exs.map(e=>({id:e.id,name:e.name,setsCompleted:(S.sets[e.id]||[]).filter(Boolean).length,totalSets:e.sets,notes:S.notes[e.id]||''})),
+    totalSetsCompleted:exs.reduce((s,e)=>s+((S.sets[e.id]||[]).filter(Boolean).length),0),
+    totalSets:exs.reduce((s,e)=>s+e.sets,0),
+    completed:exs.every(e=>(S.sets[e.id]||[]).filter(Boolean).length===e.sets)
+  };
+  const hist=[sess,...S.history];
+  localStorage.setItem('training_history',JSON.stringify(hist));
+  S.history=hist;
+  showCompletion(sess);
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify({version:1,sessions:S.history},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='training_history_'+new Date().toISOString().split('T')[0]+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function showCompletion(sess){
+  const m=String(Math.floor(sess.durationSeconds/60)).padStart(2,'0');
+  const s=String(sess.durationSeconds%60).padStart(2,'0');
+  const pct=sess.totalSets>0?Math.round(sess.totalSetsCompleted/sess.totalSets*100):0;
+  const overlay=document.getElementById('completion-overlay');
+  overlay.innerHTML=`
+    <div class="compl-card">
+      <div class="compl-eyebrow">Session saved</div>
+      <div class="compl-title">${sess.sessionLabel}</div>
+      <div class="compl-stats">
+        <div class="compl-stat-row">
+          <span class="compl-stat-name">Duration</span>
+          <span class="compl-stat-val">${m}:${s}</span>
+        </div>
+        <div class="compl-stat-row">
+          <span class="compl-stat-name">Sets</span>
+          <span class="compl-stat-val">${sess.totalSetsCompleted} / ${sess.totalSets}</span>
+        </div>
+        <div class="compl-stat-row">
+          <span class="compl-stat-name">Result</span>
+          <span class="badge ${sess.completed?'bg-g':'bg-a'}">${sess.completed?'Complete':pct+'%'}</span>
+        </div>
+      </div>
+      <div class="compl-actions">
+        <button onclick="dismissCompletion()" class="btn-primary"><i class="ti ti-check" aria-hidden="true"></i><span>Done</span></button>
+        <button onclick="exportJSON()" class="btn-secondary"><i class="ti ti-download" aria-hidden="true"></i><span>Export JSON</span></button>
+      </div>
+    </div>`;
+  overlay.style.display='flex';
+}
+
+function dismissCompletion(){
+  document.getElementById('completion-overlay').style.display='none';
+  S.sets={};S.notes={};S.exp={};S.wStart=null;S.elapsed=0;S.timerState='idle';S.accumulatedMs=0;
+  clearInterval(elInt);stopRest();
+  const td=document.getElementById('timer-disp');
+  td.textContent='--:--';td.style.color='var(--color-text-tertiary, #6a6a71)';
+  render();updateProg();updateTimerBtn();
+}
+
+function loadHistory(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.sessions)throw 0;
+      const existing=new Map(S.history.map(s=>[s.date+'|'+s.sessionType,s]));
+      d.sessions.forEach(s=>{const k=s.date+'|'+s.sessionType;if(!existing.has(k))existing.set(k,s);});
+      const merged=[...existing.values()].sort((a,b)=>b.date.localeCompare(a.date));
+      S.history=merged;
+      localStorage.setItem('training_history',JSON.stringify(merged));
+      if(S.view==='history')renderHist();
+      render();
+    }catch{alert('Could not read file.');}
+  };
+  r.readAsText(file);ev.target.value='';
+}
+
+function fmtPace(paceDecimal){
+  const paceMin=Math.floor(paceDecimal);
+  const paceSec=String(Math.round((paceDecimal-paceMin)*60)).padStart(2,'0');
+  return paceMin+':'+paceSec+' min/km';
+}
+
+function fmtRunDur(totalSecs){
+  const h=Math.floor(totalSecs/3600);
+  const m=Math.floor((totalSecs%3600)/60);
+  const s=totalSecs%60;
+  return h>0?h+'h '+String(m).padStart(2,'0')+'m':m+'m '+String(s).padStart(2,'0')+'s';
+}
+
+function renderHist(){
+  const el=document.getElementById('hist-list');
+  const sorted=[...S.history].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!sorted.length){
+    el.innerHTML='<div class="empty"><i class="ti ti-calendar" aria-hidden="true"></i><div class="empty-title">No history yet</div><div class="empty-sub">Save a session or import a previous JSON file</div></div>';
+    return;
+  }
+  el.innerHTML=sorted.map(s=>{
+    if(s.sessionType==='run'){
+      const dur=s.durationSeconds?fmtRunDur(s.durationSeconds):'—';
+      const pace=s.paceMinPerKm?fmtPace(s.paceMinPerKm):'—';
+      const noteHtml=s.notes?`<div class="hist-notes"><div class="hist-note">${s.notes}</div></div>`:'';
+      return `<div class="hist-card">
+        <div class="hist-card-top">
+          <div>
+            <div class="hist-label">${s.sessionLabel}</div>
+            <div class="hist-meta">${s.date} · ${dur} · ${pace}</div>
+          </div>
+          <span class="badge bg-g">Complete</span>
+        </div>
+        ${noteHtml}
+      </div>`;
+    }
+    const pct=s.totalSets>0?Math.round(s.totalSetsCompleted/s.totalSets*100):0;
+    const dur=s.durationSeconds?Math.floor(s.durationSeconds/60)+'m '+s.durationSeconds%60+'s':'—';
+    const notes=(s.exercises||[]).filter(e=>e.notes).map(e=>`<div class="hist-note"><b>${e.name}:</b> ${e.notes}</div>`).join('');
+    return `<div class="hist-card">
+      <div class="hist-card-top">
+        <div>
+          <div class="hist-label">${s.sessionLabel}</div>
+          <div class="hist-meta">${s.date} · ${dur} · ${s.totalSetsCompleted}/${s.totalSets} sets</div>
+        </div>
+        <span class="badge ${s.completed?'bg-g':'bg-a'}">${s.completed?'Complete':pct+'%'}</span>
+      </div>
+      <div class="hist-bar">
+        <div class="hist-bar-fill" style="background:${s.completed?'#22C55E':'#F59E0B'};width:${pct}%;"></div>
+      </div>
+      ${notes?`<div class="hist-notes">${notes}</div>`:''}
+    </div>`;
+  }).join('');
+}
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+    }).catch((err) => {
+      console.warn('[sw] registration failed:', err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
