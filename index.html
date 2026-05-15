@@ -1054,6 +1054,82 @@
   gap:8px;
 }
 
+/* ============================= SETTINGS SHEET ============================= */
+.sheet-section-lbl{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.16em;
+  color:var(--color-text-tertiary, #6a6a71);
+  margin:22px 0 10px;
+}
+.sheet-info-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid var(--color-border-tertiary, #222227);
+}
+.sheet-info-row-lbl{
+  font-size:13.5px;
+  color:var(--color-text-secondary, #a3a3a9);
+}
+.sheet-info-row-val{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:13px;
+  color:var(--color-text-primary, #f1f1f3);
+  font-variant-numeric:tabular-nums;
+}
+.sheet-action-btn{
+  width:100%;
+  padding:13px 16px;
+  margin-bottom:8px;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-size:14px;
+  font-weight:500;
+  background:var(--color-background-secondary, #1f1f24);
+  color:var(--color-text-primary, #f1f1f3);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:10px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  letter-spacing:-0.005em;
+  transition:border-color .15s, background .15s;
+}
+.sheet-action-btn:hover{
+  border-color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-primary, #16161a);
+}
+.sheet-action-btn.danger{
+  color:var(--danger, #EF4444);
+  border-color:color-mix(in srgb, var(--danger) 35%, var(--color-border-tertiary, #222227));
+}
+.sheet-action-btn.danger:hover{
+  background:color-mix(in srgb, var(--danger) 8%, var(--color-background-secondary, #1f1f24));
+  border-color:var(--danger, #EF4444);
+}
+.sheet-close-btn{
+  width:100%;
+  margin-top:12px;
+  padding:13px 16px;
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-size:14px;
+  font-weight:500;
+  background:var(--color-background-primary, #16161a);
+  color:var(--color-text-secondary, #a3a3a9);
+  border:1px solid var(--color-border-tertiary, #222227);
+  border-radius:10px;
+  cursor:pointer;
+  transition:border-color .15s, color .15s;
+}
+.sheet-close-btn:hover{
+  border-color:var(--color-text-primary, #f1f1f3);
+  color:var(--color-text-primary, #f1f1f3);
+}
+
 /* ============================= CALENDAR ============================= */
 .cal-container{
   background:var(--color-background-secondary, #1f1f24);
@@ -1180,6 +1256,7 @@
         <span class="hdr-name">Lennart's training</span>
       </div>
       <div class="hdr-right">
+        <button class="run-hdr-btn" onclick="openSettingsSheet()" aria-label="Settings">&#9881;</button>
         <span id="date-disp" class="hdr-date"></span>
         <button class="run-hdr-btn" onclick="openRunSheet()" aria-label="Log a run">
           &#x1F3C3;
@@ -1341,6 +1418,27 @@
   </div>
 </div>
 
+<div class="sheet-backdrop" id="settings-backdrop" onclick="closeSettingsSheet()"></div>
+<div class="run-sheet" id="settings-sheet" role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+  <div class="sheet-title">Settings</div>
+
+  <div class="sheet-section-lbl" style="margin-top:0;">App info</div>
+  <div class="sheet-info-row">
+    <span class="sheet-info-row-lbl">App version</span>
+    <span class="sheet-info-row-val" id="sw-version-label">—</span>
+  </div>
+
+  <div class="sheet-section-lbl">Data</div>
+  <button class="sheet-action-btn" onclick="exportJSON()">Download backup (JSON)</button>
+  <button class="sheet-action-btn" onclick="document.getElementById('file-in').click()">Restore from backup</button>
+
+  <div class="sheet-section-lbl">App</div>
+  <button class="sheet-action-btn danger" onclick="forceUpdate()">Force update (clear cache)</button>
+
+  <button class="sheet-close-btn" onclick="closeSettingsSheet()">Close</button>
+</div>
+
 <script>
 const ACCENT={A:'#2E75B6',B:'#1B3A5C'};
 
@@ -1453,6 +1551,52 @@ function closeRunSheet(){
   document.getElementById('run-backdrop').classList.remove('open');
   document.getElementById('run-sheet').classList.remove('open');
   document.body.style.overflow='';
+}
+
+function openSettingsSheet(){
+  document.getElementById('settings-backdrop').classList.add('open');
+  document.getElementById('settings-sheet').classList.add('open');
+  document.body.style.overflow='hidden';
+  const label=document.getElementById('sw-version-label');
+  label.textContent='—';
+  if('serviceWorker' in navigator&&navigator.serviceWorker.controller){
+    const onMsg=(e)=>{
+      if(e.data&&e.data.type==='SW_VERSION'){
+        label.textContent=e.data.version;
+        navigator.serviceWorker.removeEventListener('message',onMsg);
+      }
+    };
+    navigator.serviceWorker.addEventListener('message',onMsg);
+    navigator.serviceWorker.controller.postMessage({type:'GET_VERSION'});
+    setTimeout(()=>navigator.serviceWorker.removeEventListener('message',onMsg),1000);
+  }
+}
+function closeSettingsSheet(){
+  document.getElementById('settings-backdrop').classList.remove('open');
+  document.getElementById('settings-sheet').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+async function forceUpdate(){
+  const haveSW='serviceWorker' in navigator;
+  if(haveSW){
+    const reg=await navigator.serviceWorker.getRegistration();
+    if(reg&&navigator.serviceWorker.controller){
+      await new Promise((resolve)=>{
+        const onMsg=(e)=>{
+          if(e.data&&e.data.type==='CACHES_CLEARED'){
+            navigator.serviceWorker.removeEventListener('message',onMsg);
+            resolve();
+          }
+        };
+        navigator.serviceWorker.addEventListener('message',onMsg);
+        navigator.serviceWorker.controller.postMessage({type:'CLEAR_CACHES'});
+        setTimeout(resolve,1500);
+      });
+    }
+    if(reg)await reg.unregister();
+  }
+  location.reload();
 }
 
 function updatePace(){

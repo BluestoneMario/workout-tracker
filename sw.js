@@ -9,7 +9,7 @@
  * and clients pick up new assets on next activate.
  */
 
-const APP_VERSION = '1.0.8';
+const APP_VERSION = '1.0.9';
 const STATIC_CACHE = `workouttracker-static-${APP_VERSION}`;
 const FONTS_CACHE  = `workouttracker-fonts-${APP_VERSION}`;
 
@@ -80,7 +80,7 @@ self.addEventListener('message', (event) => {
 
   if (data.type === 'GET_VERSION') {
     if (event.source) {
-      event.source.postMessage({ type: 'VERSION', version: APP_VERSION });
+      event.source.postMessage({ type: 'SW_VERSION', version: APP_VERSION });
     }
   }
 });
