@@ -970,6 +970,112 @@
   display:flex;
   gap:8px;
 }
+
+/* ============================= CALENDAR ============================= */
+.cal-container{
+  background:var(--color-background-secondary, #1f1f24);
+  border:1px solid var(--color-border-secondary, #2c2c32);
+  border-radius:12px;
+  padding:14px 14px 12px;
+  margin-bottom:20px;
+}
+.cal-nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+.cal-heading{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.14em;
+  color:var(--color-text-primary, #f1f1f3);
+}
+.cal-nav-btn{
+  background:transparent;
+  border:1px solid var(--color-border-tertiary, #222227);
+  color:var(--color-text-secondary, #a3a3a9);
+  border-radius:7px;
+  width:26px;height:26px;
+  display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:color .15s, border-color .15s;
+}
+.cal-nav-btn:hover{color:var(--color-text-primary, #f1f1f3);border-color:var(--color-text-primary, #f1f1f3);}
+.cal-nav-btn i{font-size:13px !important;}
+.cal-grid{
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  gap:2px;
+}
+.cal-dow{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:9px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--color-text-tertiary, #6a6a71);
+  text-align:center;
+  padding:2px 0 6px;
+}
+.cal-cell{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:4px 2px 5px;
+  min-height:40px;
+  border-radius:6px;
+  border:1px solid transparent;
+}
+.cal-cell.cal-today{
+  border-color:var(--color-border-secondary, #2c2c32);
+  background:var(--color-background-primary, #16161a);
+}
+.cal-day-num{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  font-weight:500;
+  color:var(--color-text-secondary, #a3a3a9);
+  line-height:1.4;
+  font-variant-numeric:tabular-nums;
+}
+.cal-cell.cal-outside .cal-day-num{
+  color:var(--color-text-tertiary, #6a6a71);
+  opacity:0.45;
+}
+.cal-cell.cal-today .cal-day-num{
+  color:var(--color-text-primary, #f1f1f3);
+  font-weight:700;
+}
+.cal-dots{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:2px;
+  margin-top:3px;
+}
+.cal-dot{
+  width:6px;height:6px;
+  border-radius:50%;
+  display:block;
+  flex-shrink:0;
+}
+.cal-dot-wrap{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+}
+.cal-km{
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:9px;
+  color:var(--color-text-tertiary, #6a6a71);
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
 </style>
 
 <div id="wrap">
@@ -1051,24 +1157,23 @@
         <i class="ti ti-device-floppy" aria-hidden="true"></i>
         <span>Save session</span>
       </button>
-      <button onclick="exportJSON()" class="btn-secondary">
-        <i class="ti ti-download" aria-hidden="true"></i>
-        <span>Export JSON</span>
-      </button>
-      <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
-        <i class="ti ti-upload" aria-hidden="true"></i>
-        <span>Import</span>
-      </button>
     </div>
   </div>
 
   <div id="hist-view" style="display:none;">
+    <div id="cal-wrap"></div>
     <div class="hist-hdr">
       <div class="hist-title">Session history</div>
-      <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
-        <i class="ti ti-upload" aria-hidden="true"></i>
-        <span>Import JSON</span>
-      </button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="exportJSON()" class="btn-secondary">
+          <i class="ti ti-download" aria-hidden="true"></i>
+          <span>Export JSON</span>
+        </button>
+        <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
+          <i class="ti ti-upload" aria-hidden="true"></i>
+          <span>Import JSON</span>
+        </button>
+      </div>
     </div>
     <div id="hist-list"></div>
   </div>
@@ -1199,6 +1304,7 @@ const DATA={
 
 let S={sess:'A',view:'workout',sets:{},notes:{},exp:{},wStart:null,elapsed:0,restSecs:0,restDuration:90,history:[],timerState:'idle',accumulatedMs:0};
 let elInt=null,restInt=null;
+let CAL={year:new Date().getFullYear(),month:new Date().getMonth()};
 
 function allExs(k){return DATA[k].blocks.flatMap(b=>b.exs);}
 
@@ -1549,7 +1655,59 @@ function fmtRunDur(totalSecs){
   return h>0?h+'h '+String(m).padStart(2,'0')+'m':m+'m '+String(s).padStart(2,'0')+'s';
 }
 
+function renderCal(){
+  const wrap=document.getElementById('cal-wrap');
+  if(!wrap)return;
+  const y=CAL.year,m=CAL.month;
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const today=new Date().toISOString().split('T')[0];
+  const dateMap={};
+  S.history.forEach(entry=>{
+    if(!dateMap[entry.date])dateMap[entry.date]=[];
+    dateMap[entry.date].push(entry);
+  });
+  const firstDow=(new Date(y,m,1).getDay()+6)%7;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const prevMonthDays=new Date(y,m,0).getDate();
+  const totalCells=Math.ceil((firstDow+daysInMonth)/7)*7;
+  let cells='';
+  for(let i=0;i<totalCells;i++){
+    const offset=i-firstDow;
+    let num,inMonth,dateStr='',isToday=false;
+    if(offset<0){num=prevMonthDays+offset+1;inMonth=false;}
+    else if(offset>=daysInMonth){num=offset-daysInMonth+1;inMonth=false;}
+    else{
+      num=offset+1;inMonth=true;
+      dateStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(num).padStart(2,'0');
+      isToday=dateStr===today;
+    }
+    let dotsHtml='';
+    if(inMonth){
+      const sessions=dateMap[dateStr]||[];
+      if(sessions.length){
+        dotsHtml='<div class="cal-dots">';
+        sessions.forEach(s=>{
+          if(s.sessionType==='run'){
+            dotsHtml+=`<span class="cal-dot-wrap"><span class="cal-dot" style="background:#22C55E"></span><span class="cal-km">${s.distanceKm}k</span></span>`;
+          }else{
+            const pct=s.totalSets>0?Math.round(s.totalSetsCompleted/s.totalSets*100):0;
+            const col=pct===100?'#22C55E':pct>=50?'#F59E0B':'#EF4444';
+            dotsHtml+=`<span class="cal-dot" style="background:${col}"></span>`;
+          }
+        });
+        dotsHtml+='</div>';
+      }
+    }
+    cells+=`<div class="cal-cell${!inMonth?' cal-outside':''}${isToday?' cal-today':''}"><span class="cal-day-num">${num}</span>${dotsHtml}</div>`;
+  }
+  wrap.innerHTML=`<div class="cal-container"><div class="cal-nav"><button class="cal-nav-btn" onclick="calPrev()"><i class="ti ti-chevron-left" aria-hidden="true"></i></button><span class="cal-heading">${MONTHS[m]} ${y}</span><button class="cal-nav-btn" onclick="calNext()"><i class="ti ti-chevron-right" aria-hidden="true"></i></button></div><div class="cal-grid"><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div><div class="cal-dow">Sun</div>${cells}</div></div>`;
+}
+
+function calPrev(){CAL.month--;if(CAL.month<0){CAL.month=11;CAL.year--;}renderCal();}
+function calNext(){CAL.month++;if(CAL.month>11){CAL.month=0;CAL.year++;}renderCal();}
+
 function renderHist(){
+  renderCal();
   const el=document.getElementById('hist-list');
   const sorted=[...S.history].sort((a,b)=>b.date.localeCompare(a.date));
   if(!sorted.length){
