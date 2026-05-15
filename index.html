@@ -36,11 +36,49 @@
 }
 
 /* ============================= HEADER ============================= */
-.sticky-hdr{
-  position:sticky; top:0; z-index:20;
+/* ============================= TOP NAV TABS ============================= */
+.top-nav{
+  position:sticky; top:0; z-index:30;
+  display:flex;
+  height:49px;
   background:var(--color-background-primary, #16161a);
   border-bottom:1px solid var(--color-border-secondary, #2c2c32);
-  padding:18px 22px 18px;
+}
+.top-tab{
+  flex:1;
+  padding:0 16px;
+  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.13em;
+  background:transparent;
+  border:none;
+  border-bottom:2px solid transparent;
+  color:var(--color-text-tertiary, #6a6a71);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  transition:color .15s, background .15s, border-color .15s;
+}
+.top-tab:hover{
+  color:var(--color-text-secondary, #a3a3a9);
+  background:var(--color-background-secondary, #1f1f24);
+}
+.top-tab-active{
+  color:var(--accent-a, #2E75B6);
+  border-bottom-color:var(--accent-a, #2E75B6);
+  background:color-mix(in srgb, var(--accent-a) 6%, var(--color-background-primary, #16161a));
+}
+.top-tab i{font-size:15px !important;}
+
+.sticky-hdr{
+  position:sticky; top:49px; z-index:20;
+  background:var(--color-background-primary, #16161a);
+  border-bottom:1px solid var(--color-border-secondary, #2c2c32);
+  padding:14px 22px 14px;
 }
 
 /* Top row: brand + date pill + history button */
@@ -49,7 +87,7 @@
   align-items:center;
   justify-content:space-between;
   gap:12px;
-  margin-bottom:18px;
+  margin-bottom:0;
 }
 .hdr-brand{
   display:flex;
@@ -88,26 +126,6 @@
   font-weight:500;
   white-space:nowrap;
 }
-#view-btn{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:0.14em;
-  padding:6px 10px;
-  background:transparent;
-  border:1px solid var(--color-border-tertiary, #222227);
-  color:var(--color-text-secondary, #a3a3a9);
-  border-radius:999px;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  white-space:nowrap;
-  font-weight:600;
-  transition:color .15s, border-color .15s, background .15s;
-}
-#view-btn:hover{color:var(--color-text-primary, #f1f1f3);border-color:var(--color-text-primary, #f1f1f3);}
-
 /* Hero row */
 .hero{
   display:flex;
@@ -349,8 +367,17 @@
 }
 #timer-btn:hover{border-color:var(--color-text-primary, #f1f1f3);background:var(--color-background-secondary, #1f1f24);}
 
-/* ============================= WORKOUT ============================= */
+/* ============================= WORKOUT TAB ============================= */
+.workout-panel-hdr{
+  padding:16px 22px 16px;
+  background:var(--color-background-primary, #16161a);
+  border-bottom:1px solid var(--color-border-secondary, #2c2c32);
+}
+.workout-panel-hdr .sess-row{margin-bottom:18px;}
+.workout-panel-hdr .hero{margin-bottom:14px;}
+.workout-panel-hdr .prog-bar-row{margin-bottom:0;}
 #workout-view{padding:22px 22px 28px;}
+
 
 /* Block dividers — title row with leading dot */
 .blk-div{
@@ -808,28 +835,81 @@
   text-transform:uppercase;
 }
 
-/* ============================= RUN FORM ============================= */
-#run-btn{
+/* ============================= BOTTOM SHEET ============================= */
+.sheet-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:40;
+  background:rgba(0,0,0,0.55);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease;
+}
+.sheet-backdrop.open{
+  opacity:1;
+  pointer-events:auto;
+}
+.run-sheet{
+  position:fixed;
+  bottom:0;
+  left:max(0px, calc(50vw - 320px));
+  right:max(0px, calc(50vw - 320px));
+  z-index:41;
+  background:var(--color-background-primary, #16161a);
+  border-top:1px solid var(--color-border-secondary, #2c2c32);
+  border-radius:16px 16px 0 0;
+  max-height:70vh;
+  overflow-y:auto;
+  padding:0 22px 40px;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.32,.72,0,1);
+}
+.run-sheet.open{
+  transform:translateY(0);
+}
+.sheet-handle-wrap{
+  display:flex;
+  justify-content:center;
+  padding:12px 0 14px;
+}
+.sheet-handle{
+  width:36px;
+  height:4px;
+  background:var(--color-border-secondary, #2c2c32);
+  border-radius:2px;
+}
+.sheet-title{
   font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
-  font-size:10px;
+  font-size:11px;
+  font-weight:700;
   text-transform:uppercase;
-  letter-spacing:0.14em;
-  padding:6px 10px;
+  letter-spacing:0.16em;
+  color:var(--color-text-primary, #f1f1f3);
+  margin-bottom:20px;
+}
+
+/* Run button in sticky header */
+.run-hdr-btn{
+  width:30px; height:30px;
   background:transparent;
   border:1px solid var(--color-border-tertiary, #222227);
   color:var(--color-text-secondary, #a3a3a9);
-  border-radius:999px;
+  border-radius:8px;
   cursor:pointer;
   display:inline-flex;
   align-items:center;
-  gap:5px;
-  white-space:nowrap;
-  font-weight:600;
+  justify-content:center;
+  flex-shrink:0;
   transition:color .15s, border-color .15s, background .15s;
 }
-#run-btn:hover{color:var(--color-text-primary, #f1f1f3);border-color:var(--color-text-primary, #f1f1f3);}
+.run-hdr-btn:hover{
+  color:var(--color-text-primary, #f1f1f3);
+  border-color:var(--color-text-primary, #f1f1f3);
+}
+.run-hdr-btn i{font-size:15px !important;}
 
-#run-view{padding:22px 22px 28px;}
+/* ============================= RUN FORM ============================= */
+#run-view{padding:0;}
 .run-form{display:flex;flex-direction:column;gap:20px;}
 .run-field{display:flex;flex-direction:column;gap:6px;}
 .run-field-lbl{
@@ -1079,8 +1159,18 @@
 </style>
 
 <div id="wrap">
-  <div class="sticky-hdr">
+  <nav class="top-nav">
+    <button class="top-tab top-tab-active" id="nav-workout" onclick="setTab('workout')">
+      <i class="ti ti-barbell" aria-hidden="true"></i>
+      <span>Workout</span>
+    </button>
+    <button class="top-tab" id="nav-history" onclick="setTab('history')">
+      <i class="ti ti-history" aria-hidden="true"></i>
+      <span>History</span>
+    </button>
+  </nav>
 
+  <div class="sticky-hdr">
     <div class="hdr-top">
       <div class="hdr-brand">
         <span class="hdr-mark"><i class="ti ti-barbell" aria-hidden="true"></i></span>
@@ -1088,97 +1178,110 @@
       </div>
       <div class="hdr-right">
         <span id="date-disp" class="hdr-date"></span>
-        <button onclick="toggleView()" id="view-btn">
-          <i class="ti ti-history" aria-hidden="true"></i>
-          <span>History</span>
-        </button>
-        <button onclick="toggleRunView()" id="run-btn">
+        <button class="run-hdr-btn" onclick="openRunSheet()" aria-label="Log a run">
           <i class="ti ti-run" aria-hidden="true"></i>
-          <span>Log run</span>
         </button>
       </div>
     </div>
+  </div>
 
-    <div class="hero">
-      <div class="hero-block">
-        <div id="timer-disp">--:--</div>
-        <div class="hero-label">Elapsed</div>
-        <button id="timer-btn" onclick="toggleTimer()">
-          <i class="ti ti-player-play" aria-hidden="true"></i>
-          <span>Start</span>
+  <div id="tab-workout">
+    <div class="workout-panel-hdr">
+
+      <div class="sess-row">
+        <button class="sess-tab on-a" id="tab-A" onclick="switchSession('A')">
+          <span class="sess-key">A</span>
+          <span class="sess-info">
+            <span class="sess-info-title">Push + core</span>
+            <span class="sess-info-day">Monday</span>
+          </span>
+        </button>
+        <button class="sess-tab" id="tab-B" onclick="switchSession('B')">
+          <span class="sess-key">B</span>
+          <span class="sess-info">
+            <span class="sess-info-title">Pull + core</span>
+            <span class="sess-info-day">Saturday</span>
+          </span>
         </button>
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <span id="prog-pct">0%</span>
-          <span class="hero-stat-lbl">complete</span>
+
+      <div class="hero">
+        <div class="hero-block">
+          <div id="timer-disp">--:--</div>
+          <div class="hero-label">Elapsed</div>
+          <button id="timer-btn" onclick="toggleTimer()">
+            <i class="ti ti-player-play" aria-hidden="true"></i>
+            <span>Start</span>
+          </button>
         </div>
-        <div class="hero-stat">
-          <span id="prog-sets">0 / 0</span>
-          <span class="hero-stat-lbl">sets</span>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span id="prog-pct">0%</span>
+            <span class="hero-stat-lbl">complete</span>
+          </div>
+          <div class="hero-stat">
+            <span id="prog-sets">0 / 0</span>
+            <span class="hero-stat-lbl">sets</span>
+          </div>
         </div>
       </div>
+
+      <div class="prog-bar-row">
+        <div class="prog-bar"><div id="prog-fill"></div></div>
+      </div>
+
+      <div id="rest-row" style="display:none;">
+        <span class="rest-label">Rest</span>
+        <span id="rest-cnt"></span>
+        <div class="rest-bar"><div id="rest-fill"></div></div>
+        <button onclick="stopRest()" class="rest-skip">Skip</button>
+      </div>
+
     </div>
 
-    <div class="prog-bar-row">
-      <div class="prog-bar"><div id="prog-fill"></div></div>
-    </div>
-
-    <div class="sess-row">
-      <button class="sess-tab on-a" id="tab-A" onclick="switchSession('A')">
-        <span class="sess-key">A</span>
-        <span class="sess-info">
-          <span class="sess-info-title">Push + core</span>
-          <span class="sess-info-day">Monday</span>
-        </span>
-      </button>
-      <button class="sess-tab" id="tab-B" onclick="switchSession('B')">
-        <span class="sess-key">B</span>
-        <span class="sess-info">
-          <span class="sess-info-title">Pull + core</span>
-          <span class="sess-info-day">Saturday</span>
-        </span>
-      </button>
-    </div>
-
-    <div id="rest-row" style="display:none;">
-      <span class="rest-label">Rest</span>
-      <span id="rest-cnt"></span>
-      <div class="rest-bar"><div id="rest-fill"></div></div>
-      <button onclick="stopRest()" class="rest-skip">Skip</button>
-    </div>
-
-  </div>
-
-  <div id="workout-view">
-    <div id="ex-list"></div>
-    <div class="actions">
-      <button onclick="saveSession()" class="btn-primary">
-        <i class="ti ti-device-floppy" aria-hidden="true"></i>
-        <span>Save session</span>
-      </button>
-    </div>
-  </div>
-
-  <div id="hist-view" style="display:none;">
-    <div id="cal-wrap"></div>
-    <div class="hist-hdr">
-      <div class="hist-title">Session history</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button onclick="exportJSON()" class="btn-secondary">
-          <i class="ti ti-download" aria-hidden="true"></i>
-          <span>Export JSON</span>
-        </button>
-        <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
-          <i class="ti ti-upload" aria-hidden="true"></i>
-          <span>Import JSON</span>
+    <div id="workout-view">
+      <div id="ex-list"></div>
+      <div class="actions">
+        <button onclick="saveSession()" class="btn-primary">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i>
+          <span>Save session</span>
         </button>
       </div>
     </div>
-    <div id="hist-list"></div>
   </div>
 
-  <div id="run-view" style="display:none;">
+  <div id="tab-history" style="display:none;">
+
+    <div id="hist-view">
+      <div id="cal-wrap"></div>
+      <div class="hist-hdr">
+        <div class="hist-title">Session history</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="exportJSON()" class="btn-secondary">
+            <i class="ti ti-download" aria-hidden="true"></i>
+            <span>Export JSON</span>
+          </button>
+          <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
+            <i class="ti ti-upload" aria-hidden="true"></i>
+            <span>Import JSON</span>
+          </button>
+        </div>
+      </div>
+      <div id="hist-list"></div>
+    </div>
+
+  </div>
+
+  <div id="completion-overlay"></div>
+
+  <input type="file" id="file-in" accept=".json" style="display:none;" onchange="loadHistory(event)"/>
+</div>
+
+<div class="sheet-backdrop" id="run-backdrop" onclick="closeRunSheet()"></div>
+<div class="run-sheet" id="run-sheet" role="dialog" aria-modal="true" aria-label="Log a run">
+  <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+  <div class="sheet-title">Log a Run</div>
+  <div id="run-view">
     <div class="run-form">
 
       <div class="run-field">
@@ -1233,10 +1336,6 @@
 
     </div>
   </div>
-
-  <div id="completion-overlay"></div>
-
-  <input type="file" id="file-in" accept=".json" style="display:none;" onchange="loadHistory(event)"/>
 </div>
 
 <script>
@@ -1310,6 +1409,7 @@ function allExs(k){return DATA[k].blocks.flatMap(b=>b.exs);}
 
 window.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('date-disp').textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+  document.getElementById('run-date').value=new Date().toISOString().split('T')[0];
   try{
     const stored=localStorage.getItem('training_history');
     if(stored){const parsed=JSON.parse(stored);if(Array.isArray(parsed))S.history=parsed;}
@@ -1331,24 +1431,25 @@ function switchSession(k){
   render();updateProg();updateTimerBtn();
 }
 
-function setView(v){
-  S.view=v;
-  document.getElementById('workout-view').style.display=v==='workout'?'':'none';
-  document.getElementById('hist-view').style.display=v==='history'?'':'none';
-  document.getElementById('run-view').style.display=v==='run'?'':'none';
-  document.getElementById('view-btn').innerHTML=v==='history'
-    ?'<i class="ti ti-arrow-left" aria-hidden="true"></i><span>Workout</span>'
-    :'<i class="ti ti-history" aria-hidden="true"></i><span>History</span>';
-  document.getElementById('run-btn').innerHTML=v==='run'
-    ?'<i class="ti ti-arrow-left" aria-hidden="true"></i><span>Back</span>'
-    :'<i class="ti ti-run" aria-hidden="true"></i><span>Log run</span>';
-  if(v==='history')renderHist();
+function setTab(t){
+  S.view=t;
+  document.getElementById('tab-workout').style.display=t==='workout'?'':'none';
+  document.getElementById('tab-history').style.display=t==='history'?'':'none';
+  document.getElementById('nav-workout').classList.toggle('top-tab-active',t==='workout');
+  document.getElementById('nav-history').classList.toggle('top-tab-active',t==='history');
+  if(t==='history')renderHist();
 }
 
-function toggleView(){setView(S.view==='history'?'workout':'history');}
-function toggleRunView(){
-  if(S.view!=='run')document.getElementById('run-date').value=new Date().toISOString().split('T')[0];
-  setView(S.view==='run'?'workout':'run');
+function openRunSheet(){
+  document.getElementById('run-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('run-backdrop').classList.add('open');
+  document.getElementById('run-sheet').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeRunSheet(){
+  document.getElementById('run-backdrop').classList.remove('open');
+  document.getElementById('run-sheet').classList.remove('open');
+  document.body.style.overflow='';
 }
 
 function updatePace(){
@@ -1403,7 +1504,7 @@ function saveRun(){
   document.getElementById('run-notes').value='';
   document.getElementById('run-pace').textContent='—';
   confEl.classList.add('visible');
-  setTimeout(()=>confEl.classList.remove('visible'),3000);
+  setTimeout(()=>{confEl.classList.remove('visible');closeRunSheet();},1000);
 }
 
 function findLastEntry(exId){
