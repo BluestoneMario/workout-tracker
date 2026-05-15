@@ -12,6 +12,9 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 </head>
 <body>
 
@@ -27,12 +30,24 @@
   font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
   color:var(--color-text-primary, #f1f1f3);
   background:var(--color-background-tertiary, #0c0c0f);
-  --accent-a:#2E75B6;
-  --accent-b:#1B3A5C;
+  --accent-a:#5a8cd6;
+  --accent-a-deep:#3b6db8;
+  --accent-a-glow:rgba(90,140,214,0.18);
+  --accent-b:#d49355;
+  --accent-b-deep:#a87038;
+  --accent-b-glow:rgba(212,147,85,0.18);
+  --accent:var(--accent-a);
+  --accent-glow:var(--accent-a-glow);
+  --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
   --done:#22C55E;
   --warn:#F59E0B;
   --danger:#EF4444;
   position:relative;
+}
+
+#wrap.is-b{
+  --accent:var(--accent-b);
+  --accent-glow:var(--accent-b-glow);
 }
 
 /* ============================= HEADER ============================= */
@@ -47,7 +62,7 @@
 .top-tab{
   flex:1;
   padding:0 16px;
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   font-weight:700;
   text-transform:uppercase;
@@ -115,7 +130,7 @@
 }
 .hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .hdr-date{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   color:var(--color-text-secondary, #a3a3a9);
   text-transform:uppercase;
@@ -136,17 +151,17 @@
 }
 .hero-block{display:flex;flex-direction:column;gap:7px;min-width:0;}
 #timer-disp{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
-  font-size:56px;
-  line-height:0.92;
+  font-family:var(--mono);
+  font-size:72px;
+  line-height:0.88;
   font-weight:500;
-  letter-spacing:-0.045em;
+  letter-spacing:-0.05em;
   font-variant-numeric:tabular-nums;
   color:var(--color-text-tertiary, #6a6a71);
-  transition:color .2s;
+  transition:color .25s;
 }
 .hero-label{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   color:var(--color-text-tertiary, #6a6a71);
   text-transform:uppercase;
@@ -168,7 +183,7 @@
   gap:2px;
 }
 #prog-pct{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:22px;
   font-weight:500;
   color:var(--color-text-primary, #f1f1f3);
@@ -177,7 +192,7 @@
   font-variant-numeric:tabular-nums;
 }
 #prog-sets{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:13px;
   color:var(--color-text-secondary, #a3a3a9);
   letter-spacing:-0.01em;
@@ -185,7 +200,7 @@
   font-variant-numeric:tabular-nums;
 }
 .hero-stat-lbl{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:9.5px;
   color:var(--color-text-tertiary, #6a6a71);
   text-transform:uppercase;
@@ -209,8 +224,9 @@
   height:100%;
   border-radius:4px;
   width:0%;
-  background:var(--accent-a);
-  transition:width .35s ease;
+  background:var(--accent);
+  box-shadow:0 0 12px var(--accent-glow);
+  transition:width .35s cubic-bezier(.4,0,.2,1), background-color .3s;
 }
 
 /* Session tabs as cards */
@@ -236,7 +252,7 @@
   border-color:var(--color-border-secondary, #2c2c32);
 }
 .sess-key{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:15px;
   font-weight:600;
   line-height:1;
@@ -261,7 +277,7 @@
   letter-spacing:-0.005em;
 }
 .sess-info-day{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   color:var(--color-text-tertiary, #6a6a71);
   text-transform:uppercase;
@@ -270,19 +286,22 @@
 }
 .sess-tab.on-a, .sess-tab.on-b{
   color:var(--color-text-primary, #f1f1f3);
-  background:var(--color-background-primary, #16161a);
-  border-color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-secondary, #1f1f24);
+  border-color:var(--color-border-secondary, #2c2c32);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 10px rgba(0,0,0,0.3);
 }
 .sess-tab.on-a .sess-key{
   background:var(--accent-a);
   border-color:var(--accent-a);
-  color:#fff;
+  color:#0c1424;
 }
 .sess-tab.on-b .sess-key{
   background:var(--accent-b);
   border-color:var(--accent-b);
-  color:#fff;
+  color:#241608;
 }
+.sess-tab.on-a .sess-info-day{color:var(--accent-a);}
+.sess-tab.on-b .sess-info-day{color:var(--accent-b);}
 
 /* Rest row */
 #rest-row{
@@ -296,7 +315,7 @@
   gap:14px;
 }
 .rest-label{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   color:var(--color-text-secondary, #a3a3a9);
   text-transform:uppercase;
@@ -305,7 +324,7 @@
   flex-shrink:0;
 }
 #rest-cnt{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:30px;
   font-weight:500;
   font-variant-numeric:tabular-nums;
@@ -331,7 +350,7 @@
   transition:width 1s linear, background-color .25s;
 }
 .rest-skip{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   text-transform:uppercase;
   letter-spacing:0.14em;
@@ -349,7 +368,7 @@
 
 #timer-btn{
   margin-top:6px;
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   text-transform:uppercase;
   letter-spacing:0.14em;
@@ -399,7 +418,7 @@
 }
 .blk-div-line{display:none;}
 .blk-div-lbl{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   font-weight:700;
   color:var(--color-text-primary, #f1f1f3);
@@ -489,7 +508,7 @@
 .card-hdr:hover .ex-chev{color:var(--color-text-primary, #f1f1f3);}
 
 .reps-badge{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   font-weight:600;
   color:var(--color-text-secondary, #a3a3a9);
@@ -507,7 +526,7 @@
 .last-time{
   display:flex;
   gap:10px;
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   color:var(--color-text-tertiary, #6a6a71);
   margin-bottom:10px;
@@ -535,7 +554,7 @@
   border:1.5px solid var(--color-border-tertiary, #222227);
   background:var(--color-background-primary, #16161a);
   color:var(--color-text-tertiary, #6a6a71);
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:14.5px;
   font-weight:600;
   font-variant-numeric:tabular-nums;
@@ -566,7 +585,7 @@
 }
 
 .set-count{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   color:var(--color-text-tertiary, #6a6a71);
   margin-left:8px;
@@ -590,7 +609,7 @@
   display:inline-flex;
   align-items:center;
   gap:6px;
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   font-weight:600;
   background:color-mix(in srgb, var(--warn) 8%, var(--color-background-primary, #16161a));
@@ -617,7 +636,7 @@
 }
 
 .ill-link{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   text-transform:uppercase;
   letter-spacing:0.14em;
@@ -720,7 +739,7 @@
   border-bottom:1px solid var(--color-border-tertiary, #222227);
 }
 .hist-title{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   font-weight:700;
   text-transform:uppercase;
@@ -730,7 +749,7 @@
 .hist-hdr .btn-secondary{
   padding:8px 12px;
   font-size:11px;
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   text-transform:uppercase;
   letter-spacing:0.14em;
   font-weight:600;
@@ -760,7 +779,7 @@
   line-height:1.3;
 }
 .hist-meta{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   color:var(--color-text-tertiary, #6a6a71);
   margin-top:5px;
@@ -796,7 +815,7 @@
 }
 
 .badge{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   font-weight:700;
   padding:4px 10px;
@@ -828,7 +847,7 @@
 .empty i{font-size:30px !important;display:block;margin-bottom:12px;}
 .empty-title{font-size:14px;color:var(--color-text-secondary, #a3a3a9);font-weight:500;}
 .empty-sub{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   margin-top:8px;
   letter-spacing:0.08em;
@@ -882,7 +901,7 @@
   border-radius:2px;
 }
 .sheet-title{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   font-weight:700;
   text-transform:uppercase;
@@ -916,7 +935,7 @@
 .run-form{display:flex;flex-direction:column;gap:20px;}
 .run-field{display:flex;flex-direction:column;gap:6px;}
 .run-field-lbl{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   font-weight:600;
   text-transform:uppercase;
@@ -945,7 +964,7 @@
 .run-dist-row{display:flex;align-items:center;gap:8px;}
 .run-dist-row .run-input-num{flex:1;}
 .run-unit{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   color:var(--color-text-tertiary, #6a6a71);
   text-transform:uppercase;
@@ -955,21 +974,21 @@
 }
 .run-time-row{display:flex;align-items:center;gap:8px;}
 .run-time-sep{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:16px;
   color:var(--color-text-tertiary, #6a6a71);
   flex-shrink:0;
 }
 .run-time-row .run-input-num{width:72px;flex-shrink:0;text-align:center;}
 .run-pace{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:13px;
   color:var(--color-text-tertiary, #6a6a71);
   margin-top:6px;
 }
 .run-field .ex-textarea{margin-top:0;}
 .run-error{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   color:var(--danger);
   margin-top:8px;
@@ -977,7 +996,7 @@
 }
 .run-error.visible{display:block;}
 .run-confirm{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   color:var(--done);
   margin-top:8px;
@@ -1005,7 +1024,7 @@
   padding:28px 24px;
 }
 .compl-eyebrow{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   font-weight:700;
   text-transform:uppercase;
@@ -1035,7 +1054,7 @@
   align-items:center;
 }
 .compl-stat-name{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10.5px;
   color:var(--color-text-tertiary, #6a6a71);
   text-transform:uppercase;
@@ -1043,7 +1062,7 @@
   font-weight:600;
 }
 .compl-stat-val{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:14px;
   color:var(--color-text-primary, #f1f1f3);
   font-weight:500;
@@ -1056,7 +1075,7 @@
 
 /* ============================= SETTINGS SHEET ============================= */
 .sheet-section-lbl{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:10px;
   font-weight:700;
   text-transform:uppercase;
@@ -1076,7 +1095,7 @@
   color:var(--color-text-secondary, #a3a3a9);
 }
 .sheet-info-row-val{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:13px;
   color:var(--color-text-primary, #f1f1f3);
   font-variant-numeric:tabular-nums;
@@ -1134,73 +1153,81 @@
 .cal-container{
   background:var(--color-background-secondary, #1f1f24);
   border:1px solid var(--color-border-secondary, #2c2c32);
-  border-radius:12px;
-  padding:14px 14px 12px;
+  border-radius:14px;
+  padding:16px 14px 12px;
   margin-bottom:20px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .cal-nav{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-bottom:12px;
+  margin-bottom:14px;
+  padding:0 4px;
 }
 .cal-heading{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
   font-weight:700;
   text-transform:uppercase;
-  letter-spacing:0.14em;
+  letter-spacing:0.18em;
   color:var(--color-text-primary, #f1f1f3);
 }
 .cal-nav-btn{
-  background:transparent;
+  background:var(--color-background-primary, #16161a);
   border:1px solid var(--color-border-secondary, #2c2c32);
   color:var(--color-text-primary, #f1f1f3);
-  border-radius:7px;
-  width:26px;height:26px;
+  border-radius:8px;
+  width:30px;height:30px;
   display:inline-flex;align-items:center;justify-content:center;
   cursor:pointer;
   flex-shrink:0;
-  transition:color .15s, border-color .15s;
+  transition:all .15s;
+  font-size:14px;
 }
-.cal-nav-btn:hover{color:var(--color-text-primary, #f1f1f3);border-color:var(--color-text-primary, #f1f1f3);}
+.cal-nav-btn:hover{
+  border-color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-tertiary, #0c0c0f);
+}
 .cal-nav-btn i{font-size:13px !important;}
 .cal-grid{
   display:grid;
   grid-template-columns:repeat(7, 1fr);
-  gap:2px;
+  gap:3px;
 }
 .cal-dow{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:9px;
-  font-weight:600;
+  font-weight:700;
   text-transform:uppercase;
-  letter-spacing:0.06em;
+  letter-spacing:0.1em;
   color:var(--color-text-tertiary, #6a6a71);
   text-align:center;
-  padding:2px 0 6px;
+  padding:4px 0 8px;
 }
 .cal-cell{
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding:4px 2px 5px;
-  min-height:40px;
-  border-radius:6px;
+  padding:5px 2px 6px;
+  min-height:44px;
+  border-radius:8px;
+  background:var(--color-background-tertiary, #0c0c0f);
   border:1px solid transparent;
 }
 .cal-cell.cal-today{
-  border-color:var(--color-border-secondary, #2c2c32);
+  border-color:var(--color-text-primary, #f1f1f3);
   background:var(--color-background-primary, #16161a);
 }
 .cal-day-num{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
+  font-family:var(--mono);
   font-size:11px;
-  font-weight:500;
+  font-weight:600;
   color:var(--color-text-secondary, #a3a3a9);
   line-height:1.4;
   font-variant-numeric:tabular-nums;
 }
+.cal-cell.cal-outside{background:transparent;}
 .cal-cell.cal-outside .cal-day-num{
   color:var(--color-text-tertiary, #6a6a71);
   opacity:0.45;
@@ -1214,10 +1241,10 @@
   flex-wrap:wrap;
   justify-content:center;
   gap:2px;
-  margin-top:3px;
+  margin-top:4px;
 }
 .cal-dot{
-  width:6px;height:6px;
+  width:5px;height:5px;
   border-radius:50%;
   display:block;
   flex-shrink:0;
@@ -1226,14 +1253,15 @@
   display:inline-flex;
   flex-direction:column;
   align-items:center;
-  gap:3px;
+  gap:2px;
 }
 .cal-km{
-  font-family:var(--font-mono, ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace);
-  font-size:9px;
+  font-family:var(--mono);
+  font-size:8.5px;
   color:var(--color-text-tertiary, #6a6a71);
   line-height:1;
   font-variant-numeric:tabular-nums;
+  font-weight:600;
 }
 </style>
 
@@ -1440,7 +1468,7 @@
 </div>
 
 <script>
-const ACCENT={A:'#2E75B6',B:'#1B3A5C'};
+const ACCENT={A:'#5a8cd6',B:'#d49355'};
 
 const DATA={
   A:{name:'Session A',sub:'Push · core · balance',day:'Monday',
@@ -1528,6 +1556,7 @@ function switchSession(k){
   stopRest();
   document.getElementById('tab-A').className='sess-tab'+(k==='A'?' on-a':'');
   document.getElementById('tab-B').className='sess-tab'+(k==='B'?' on-b':'');
+  document.getElementById('wrap').classList.toggle('is-b',k==='B');
   document.getElementById('prog-fill').style.background=ACCENT[k];
   render();updateProg();updateTimerBtn();
 }
