@@ -1364,16 +1364,6 @@
       <div id="cal-wrap"></div>
       <div class="hist-hdr">
         <div class="hist-title">Session history</div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button onclick="exportJSON()" class="btn-secondary">
-            <i class="ti ti-download" aria-hidden="true"></i>
-            <span>Export JSON</span>
-          </button>
-          <button onclick="document.getElementById('file-in').click()" class="btn-secondary">
-            <i class="ti ti-upload" aria-hidden="true"></i>
-            <span>Import JSON</span>
-          </button>
-        </div>
       </div>
       <div id="hist-list"></div>
     </div>
@@ -1382,7 +1372,7 @@
 
   <div id="completion-overlay"></div>
 
-  <input type="file" id="file-in" accept=".json" style="display:none;" onchange="loadHistory(event)"/>
+
 </div>
 
 <div class="sheet-backdrop" id="run-backdrop" onclick="closeRunSheet()"></div>
@@ -2046,5 +2036,6 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+<input type="file" id="file-in" accept=".json" style="display:none;" onchange="loadHistory(event)"/>
 </body>
 </html>
