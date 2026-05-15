@@ -1700,7 +1700,7 @@ function renderCal(){
     }
     cells+=`<div class="cal-cell${!inMonth?' cal-outside':''}${isToday?' cal-today':''}"><span class="cal-day-num">${num}</span>${dotsHtml}</div>`;
   }
-  wrap.innerHTML=`<div class="cal-container"><div class="cal-nav"><button class="cal-nav-btn" onclick="calPrev()"><i class="ti ti-chevron-left" aria-hidden="true"></i></button><span class="cal-heading">${MONTHS[m]} ${y}</span><button class="cal-nav-btn" onclick="calNext()"><i class="ti ti-chevron-right" aria-hidden="true"></i></button></div><div class="cal-grid"><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div><div class="cal-dow">Sun</div>${cells}</div></div>`;
+  wrap.innerHTML=`<div class="cal-container"><div class="cal-nav"><button class="cal-nav-btn" onclick="calPrev()">&#8592;</button><span class="cal-heading">${MONTHS[m]} ${y}</span><button class="cal-nav-btn" onclick="calNext()">&#8594;</button></div><div class="cal-grid"><div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div><div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div><div class="cal-dow">Sun</div>${cells}</div></div>`;
 }
 
 function calPrev(){CAL.month--;if(CAL.month<0){CAL.month=11;CAL.year--;}renderCal();}
