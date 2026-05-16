@@ -1246,7 +1246,9 @@
    The exact .sticky-hdr height varies with content/padding, so app.js
    measures both at runtime and overrides the `top` value below. */
 #mini-bar {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   top: 0; /* JS overrides this to sit below .sticky-hdr */
   z-index: 20;
   background: var(--color-background-secondary, #1f1f24);

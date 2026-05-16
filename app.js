@@ -7,6 +7,7 @@ let DATA;
 
 let S={sess:'A',view:'workout',sets:{},notes:{},exp:{},wStart:null,elapsed:0,restSecs:0,restDuration:90,restEndAt:0,history:[],timerState:'idle',accumulatedMs:0};
 let elInt=null,restInt=null;
+let miniBarCooldown = false;
 let CAL={year:new Date().getFullYear(),month:new Date().getMonth()};
 
 function allExs(k){return DATA[k].blocks.flatMap(b=>b.exs);}
@@ -42,8 +43,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (panelHdr && miniBar) {
     const updateMiniBarVisibility = () => {
       if (S.view !== 'workout') return;
+      if (miniBarCooldown) return;
       const rect = panelHdr.getBoundingClientRect();
-      const show = rect.bottom <= (document.querySelector('.sticky-hdr')?.offsetHeight || 0);
+      const hdrBottom = document.querySelector('.sticky-hdr')?.offsetHeight || 0;
+      const show = rect.bottom <= hdrBottom;
+      if (miniBar.classList.contains('mini-bar--visible') === show) return;
+      miniBarCooldown = true;
+      setTimeout(() => { miniBarCooldown = false; }, 200);
       miniBar.classList.toggle('mini-bar--visible', show);
       miniBar.setAttribute('aria-hidden', String(!show));
       if (show) updateMiniBar();
