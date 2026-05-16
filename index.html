@@ -106,7 +106,7 @@
 }
 .hdr-brand{
   display:flex;
-  align-items:center;
+  align-items:baseline;
   gap:9px;
   min-width:0;
 }
@@ -135,11 +135,10 @@
   color:var(--color-text-secondary, #a3a3a9);
   text-transform:uppercase;
   letter-spacing:0.1em;
-  padding:6px 10px;
-  border:1px solid var(--color-border-tertiary, #222227);
-  border-radius:999px;
   font-weight:500;
   white-space:nowrap;
+  border-left:1px solid var(--color-border-tertiary, #222227);
+  padding-left:9px;
 }
 /* Hero row */
 .hero{
@@ -1282,10 +1281,10 @@
       <div class="hdr-brand">
         <span class="hdr-mark"><i class="ti ti-barbell" aria-hidden="true"></i></span>
         <span class="hdr-name">Lennart's training</span>
+        <span id="date-disp" class="hdr-date"></span>
       </div>
       <div class="hdr-right">
         <button class="run-hdr-btn" onclick="openSettingsSheet()" aria-label="Settings">&#9881;</button>
-        <span id="date-disp" class="hdr-date"></span>
         <button class="run-hdr-btn" onclick="openRunSheet()" aria-label="Log a run">
           &#x1F3C3;
         </button>
