@@ -9,7 +9,7 @@
  * and clients pick up new assets on next activate.
  */
 
-const APP_VERSION = '1.2.2';
+const APP_VERSION = '1.2.3';
 const STATIC_CACHE = `workouttracker-static-${APP_VERSION}`;
 const FONTS_CACHE  = `workouttracker-fonts-${APP_VERSION}`;
 
