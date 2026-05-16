@@ -82,6 +82,9 @@ function openSettingsSheet(){
     navigator.serviceWorker.controller.postMessage({type:'GET_VERSION'});
     setTimeout(()=>navigator.serviceWorker.removeEventListener('message',onMsg),1000);
   }
+  const stats = getStorageStats();
+  const storageEl = document.getElementById('storage-usage');
+  if (storageEl) storageEl.textContent = stats.usedKB + ' KB used (~' + stats.pct + '% of 5 MB)';
 }
 function closeSettingsSheet(){
   document.getElementById('settings-backdrop').classList.remove('open');
@@ -397,19 +400,69 @@ function loadHistory(ev){
   const file=ev.target.files[0];if(!file)return;
   const r=new FileReader();
   r.onload=e=>{
-    try{
-      const d=JSON.parse(e.target.result);
-      if(!d.sessions)throw 0;
-      const existing=new Map(S.history.map(s=>[s.date+'|'+s.sessionType,s]));
-      d.sessions.forEach(s=>{const k=s.date+'|'+s.sessionType;if(!existing.has(k))existing.set(k,s);});
-      const merged=[...existing.values()].sort((a,b)=>b.date.localeCompare(a.date));
-      S.history=merged;
-      localStorage.setItem('training_history',JSON.stringify(merged));
-      if(S.view==='history')renderHist();
+    try {
+      const d = JSON.parse(e.target.result);
+
+      if (!d || !Array.isArray(d.sessions)) {
+        alert('Invalid file: expected a training history export with a "sessions" array.');
+        return;
+      }
+
+      const isValidSession = (s) =>
+        s !== null &&
+        typeof s === 'object' &&
+        typeof s.date === 'string' &&
+        /^\d{4}-\d{2}-\d{2}$/.test(s.date) &&
+        typeof s.sessionType === 'string' &&
+        typeof s.sessionLabel === 'string';
+
+      const valid = d.sessions.filter(isValidSession);
+      const skipped = d.sessions.length - valid.length;
+
+      if (valid.length === 0) {
+        alert('No valid sessions found in this file. The file may be empty or incorrectly formatted.');
+        return;
+      }
+
+      const existing = new Map(S.history.map(s => [s.date + '|' + s.sessionType, s]));
+      let imported = 0;
+      valid.forEach(s => {
+        const k = s.date + '|' + s.sessionType;
+        if (!existing.has(k)) { existing.set(k, s); imported++; }
+      });
+
+      const merged = [...existing.values()].sort((a, b) => b.date.localeCompare(a.date));
+      S.history = merged;
+      localStorage.setItem('training_history', JSON.stringify(merged));
+      if (S.view === 'history') renderHist();
       render();
-    }catch{alert('Could not read file.');}
+
+      const msg = imported > 0
+        ? `Imported ${imported} session${imported !== 1 ? 's' : ''}${skipped > 0 ? ` (${skipped} invalid entries skipped)` : ''}.`
+        : `No new sessions to import${skipped > 0 ? ` (${skipped} invalid entries skipped)` : ''}.`;
+      alert(msg);
+
+    } catch {
+      alert('Could not read file. Make sure this is a valid training history JSON export.');
+    }
   };
   r.readAsText(file);ev.target.value='';
+}
+
+function getStorageStats() {
+  try {
+    let totalBytes = 0;
+    for (const key of Object.keys(localStorage)) {
+      totalBytes += (localStorage.getItem(key) || '').length * 2; // UTF-16: 2 bytes per char
+    }
+    const usedKB = (totalBytes / 1024).toFixed(1);
+    const usedMB = (totalBytes / (1024 * 1024)).toFixed(2);
+    const estimatedQuotaKB = 5120; // conservative 5 MB estimate
+    const pct = Math.min(100, Math.round(totalBytes / (estimatedQuotaKB * 1024) * 100));
+    return { usedKB, usedMB, pct };
+  } catch {
+    return { usedKB: '?', usedMB: '?', pct: 0 };
+  }
 }
 
 function fmtPace(paceDecimal){
