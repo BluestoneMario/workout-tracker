@@ -1,0 +1,363 @@
+{
+  "A": {
+    "name": "Session A",
+    "sub": "Push · core · balance",
+    "day": "Monday",
+    "blocks": [
+      {
+        "lbl": "Warm-up · 5 min",
+        "exs": [
+          {
+            "id": "wu1",
+            "name": "TRX chest stretch",
+            "muscles": "Pectorals · anterior shoulder capsule",
+            "sets": 1,
+            "reps": "30 sec/side",
+            "rest": 0,
+            "url": "https://www.trxtraining.com/blogs/news/trx-exercises",
+            "tip": "Stand beside the anchor, one arm extended back holding a handle, and rotate your torso away until you feel a stretch across the chest and front shoulder. Hold 30 seconds. Switch sides. Do this before any pressing — it improves shoulder range and reduces injury risk on push days."
+          },
+          {
+            "id": "wu2",
+            "name": "Arm circles + shoulder rolls",
+            "muscles": "Rotator cuff · deltoid · upper traps",
+            "sets": 1,
+            "reps": "10 each direction",
+            "rest": 0,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/",
+            "tip": "Stand tall, arms at sides. Circle both arms forward 10 times — start small and gradually widen the arc. Reverse for 10. Then shrug both shoulders up toward ears and roll them back and down in slow circles. This warms up the full rotator cuff and primes the shoulder joint for overhead and pressing work."
+          },
+          {
+            "id": "wu3",
+            "name": "Scapular retractions",
+            "muscles": "Rhomboids · mid traps · rear deltoid",
+            "sets": 1,
+            "reps": "10 reps, 2 sec hold",
+            "rest": 0,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/",
+            "tip": "Stand or sit tall. Squeeze your shoulder blades together as hard as you can — think about trying to hold a pencil between them. Hold for 2 seconds, then fully release. This activates the mid-back muscles that stabilise every pushing and pulling movement. Critical for shoulder health."
+          },
+          {
+            "id": "wu4",
+            "name": "World's greatest stretch",
+            "muscles": "Hip flexors · thoracic spine · glutes · hamstrings",
+            "sets": 1,
+            "reps": "5 reps/side",
+            "rest": 0,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/",
+            "tip": "Step into a deep lunge. Place the same-side hand on the floor beside your foot, then rotate your opposite arm up toward the ceiling, following it with your eyes. Hold briefly, return, and repeat. This single movement opens the hips, thoracic spine, and shoulders simultaneously — one of the highest-value warm-up drills available."
+          }
+        ]
+      },
+      {
+        "lbl": "Block 1 — push compound",
+        "exs": [
+          {
+            "id": "pushup",
+            "name": "Push-up (+ progressions)",
+            "muscles": "Chest · anterior deltoid · triceps · core",
+            "sets": 4,
+            "reps": "10–12",
+            "rest": 120,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/",
+            "tip": "Hands shoulder-width apart, body a straight line from head to heels — no hips sagging or piking. Lower your chest to just above the floor with elbows at roughly 45° from your body, then press back up. Progression order: standard → decline (feet on chair or step) → archer (one arm extended wide while the other presses) → one-arm. Move to the next level when you can complete all 4 sets cleanly.",
+            "note": null
+          },
+          {
+            "id": "pike",
+            "name": "Pike push-up",
+            "muscles": "Anterior deltoid · upper chest · triceps",
+            "sets": 3,
+            "reps": "8–10",
+            "rest": 90,
+            "url": "https://www.healthline.com/health/decline-push-up",
+            "tip": "Start in a downward-dog position with your hips high, forming a triangle with the floor. Bend your elbows and lower your forehead toward the floor between your hands, then press back up. The steeper the angle of your body, the more this becomes a shoulder-dominant movement and the less it resembles a chest press. Elevating your feet makes it harder and shifts load further onto the shoulders."
+          }
+        ]
+      },
+      {
+        "lbl": "Block 2 — shoulder isolation",
+        "exs": [
+          {
+            "id": "trx_yfly",
+            "name": "TRX Y-fly",
+            "muscles": "Anterior deltoid · upper traps · serratus anterior",
+            "sets": 3,
+            "reps": "12–15",
+            "rest": 90,
+            "url": "https://www.trxtraining.com/blogs/news/trx-shoulder-exercises",
+            "tip": "Face the TRX anchor with feet forward, lean back to create tension — the further back you lean, the harder it gets. With arms straight and thumbs pointing up, raise both arms up and out to form a Y overhead. Control the lowering phase completely. This replaces the band overhead press. Unlike a strict press, it keeps continuous tension throughout the range of motion, which the band couldn't do at higher loads.",
+            "warn": "Replaces band overhead press (bands damaged)"
+          },
+          {
+            "id": "trx_traise",
+            "name": "TRX T-raise",
+            "muscles": "Middle deltoid · rhomboids · posterior shoulder",
+            "sets": 3,
+            "reps": "12–15",
+            "rest": 90,
+            "url": "https://www.trxtraining.com/blogs/news/trx-shoulder-exercises",
+            "tip": "Same leaning position as the Y-fly. Raise both straight arms out to the sides until they form a T with your body, palms facing down. Squeeze your shoulder blades together at the top and hold for one second before lowering slowly. This is the TRX equivalent of a lateral raise — it targets the middle deltoid through a loaded stretch that bands can't replicate at high tension.",
+            "warn": "Replaces band lateral raise (bands damaged)"
+          },
+          {
+            "id": "trxtri",
+            "name": "TRX tricep extension",
+            "muscles": "Triceps · core stabilisers",
+            "sets": 3,
+            "reps": "10–12",
+            "rest": 75,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/80/trx-reg-overhead-triceps-extension/",
+            "tip": "Face away from the anchor. Hold the handles with elbows bent to 90°, hands near your forehead, and lean your body forward — the more forward you lean, the harder it is. Extend both elbows by pressing your forearms forward and up, keeping your upper arms fixed and elbows high throughout. Lower slowly with control. The instability of the TRX forces your core to work as a stabiliser at the same time."
+          }
+        ]
+      },
+      {
+        "lbl": "Block 3 — core",
+        "exs": [
+          {
+            "id": "plank",
+            "name": "Plank hold",
+            "muscles": "Transverse abdominis · glutes · shoulders",
+            "sets": 3,
+            "reps": "30–45 sec",
+            "rest": 60,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/",
+            "tip": "Forearms on the mat, elbows directly under your shoulders, body a straight line from head to heels. Squeeze your glutes hard and brace your core as if you're about to take a punch. Breathe steadily and don't hold your breath. When your form breaks — hips dropping or piking, lower back arching — stop. Quality beats duration every time. Build from 30 seconds toward 60 before adding time."
+          },
+          {
+            "id": "deadbug",
+            "name": "Dead bug",
+            "muscles": "Deep core · hip flexors · lower back stabilisers",
+            "sets": 3,
+            "reps": "8 reps/side",
+            "rest": 60,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/",
+            "tip": "Lie on your back, arms pointing straight to the ceiling, knees bent at 90° directly above your hips. The critical cue: press your entire lower back into the mat and keep it there throughout every rep. Slowly lower your right arm overhead and left leg toward the floor simultaneously, stopping just before your back lifts, then return and switch sides. This works the deep core in a way that sit-ups don't, with no sliding."
+          },
+          {
+            "id": "sideplnk",
+            "name": "Side plank",
+            "muscles": "Obliques · glute medius · shoulders",
+            "sets": 2,
+            "reps": "30 sec/side",
+            "rest": 60,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/303/side-plank/",
+            "tip": "Elbow directly under your shoulder, feet stacked or staggered for stability. Lift your hips so your body forms a straight diagonal line from head to heels — resist the urge to let your top hip roll forward. Keep your gaze forward, not down. Progress by adding hip dips (the Session B version) once 30 seconds feels manageable."
+          }
+        ]
+      },
+      {
+        "lbl": "Balance · 5 min",
+        "exs": [
+          {
+            "id": "vor_a",
+            "name": "VOR tracking (chiropractor)",
+            "muscles": "Vestibular · oculomotor · cerebellum",
+            "sets": 2,
+            "reps": "10 sweeps × 2 planes × 2 feet",
+            "rest": 0,
+            "url": "https://www.healthline.com/health/vestibular-exercises",
+            "tip": "Semi-tandem stance: take a half step forward with feet on either side of an imaginary midline. Extend one arm with thumb up, cover the other eye with your free hand. Tracking your thumb with your open eye, sweep your arm slowly all the way up over your head and back down (vertical plane), then repeat sweeping side to side (horizontal). Switch which foot is forward and repeat. This trains your vestibulo-ocular reflex — the integration of balance, vision, and movement that supports everything from running to skating."
+          },
+          {
+            "id": "bal_a",
+            "name": "Single leg balance",
+            "muscles": "Proprioception · ankle stabilisers · glute medius",
+            "sets": 1,
+            "reps": "30 sec × 4  (each leg, eyes open + closed)",
+            "rest": 0,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/",
+            "tip": "Stand on one foot with a soft knee bend, gaze fixed on a still point in front of you. Hold 30 seconds. Then close your eyes — this removes visual input and forces your vestibular and proprioceptive systems to work harder. It's dramatically more difficult. Progress over weeks by adding slow head turns while balancing, then arm movements."
+          }
+        ]
+      }
+    ]
+  },
+  "B": {
+    "name": "Session B",
+    "sub": "Pull · core · balance",
+    "day": "Saturday",
+    "blocks": [
+      {
+        "lbl": "Warm-up · 5 min",
+        "exs": [
+          {
+            "id": "wu_b1",
+            "name": "TRX chest stretch",
+            "muscles": "Pectorals · anterior shoulder",
+            "sets": 1,
+            "reps": "30 sec/side",
+            "rest": 0,
+            "url": "https://www.trxtraining.com/blogs/news/trx-exercises",
+            "tip": "Stand beside the anchor holding a single handle, arm extended behind you. Rotate your torso away from the anchor until you feel the stretch across your chest and front shoulder. Hold 30 seconds and switch. Especially useful before a pull session because tight chest muscles restrict how far you can retract your shoulder blades during rows."
+          },
+          {
+            "id": "wu_b2",
+            "name": "Band pull-aparts",
+            "muscles": "Rear deltoid · rhomboids · mid traps",
+            "sets": 1,
+            "reps": "15 reps",
+            "rest": 0,
+            "url": "https://www.healthline.com/health/fitness/back-exercises-with-bands",
+            "tip": "Hold the band at shoulder width with both hands in front of you, arms straight. Pull the band apart by driving both hands outward until you reach a T-shape, squeezing your rear delts hard at the end range. Use your lightest band — this is activation work, not loading work. Keep the bands for low-tension exercises only.",
+            "warn": "Light bands only — use lowest tension available"
+          },
+          {
+            "id": "wu_b3",
+            "name": "Cat-cow + scapular retractions",
+            "muscles": "Thoracic spine · rhomboids · core",
+            "sets": 1,
+            "reps": "10 cat-cows + 10 retractions",
+            "rest": 0,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/",
+            "tip": "On hands and knees: arch your back up (cat) then dip it down and lift your head (cow). Move slowly through 10 full cycles. Then transition to seated or standing scapular retractions — squeeze shoulder blades together as far as possible, hold 2 seconds, release fully. This primes the mid-back muscles that drive every pulling movement in this session."
+          }
+        ]
+      },
+      {
+        "lbl": "Block 1 — pull compound",
+        "exs": [
+          {
+            "id": "trxrow",
+            "name": "TRX row",
+            "muscles": "Lats · rhomboids · rear deltoid · biceps · core",
+            "sets": 4,
+            "reps": "10–12",
+            "rest": 150,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/84/trx-reg-back-row/",
+            "tip": "Face the anchor, hold handles with palms facing each other. Walk your feet forward until your body is at your working angle — 45° is moderate, nearly horizontal is hard. Pull your chest to the handles by retracting your shoulder blades first, then driving your elbows back. Squeeze hard at the top. Lower slowly with full arm extension. This is your most important exercise given your arm scan data — give it your best sets first.",
+            "note": "Priority exercise — your scan showed arms at 1.3/1.4 kg. This is the primary driver."
+          },
+          {
+            "id": "trxface",
+            "name": "TRX face pull",
+            "muscles": "Rear deltoid · external rotators · rhomboids · lower traps",
+            "sets": 3,
+            "reps": "12–15",
+            "rest": 90,
+            "url": "https://www.trxtraining.com/blogs/news/trx-shoulder-exercises",
+            "tip": "Face the anchor with arms extended at eye level. Pull both hands toward your face with your elbows flaring high and wide — like a double bicep pose. The key is to lead with your elbows, not your hands, and to squeeze your rear delts and external rotators hard at the end range. Hold for one second at peak contraction. This is corrective work for shoulder health and posture — take it slow, don't rush the reps."
+          }
+        ]
+      },
+      {
+        "lbl": "Block 2 — bicep & upper back isolation",
+        "exs": [
+          {
+            "id": "supine",
+            "name": "TRX supine row (underhand)",
+            "muscles": "Biceps · brachialis · lower lats",
+            "sets": 3,
+            "reps": "10–12",
+            "rest": 90,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/78/trx-reg-biceps-curl/",
+            "tip": "Same position as the TRX row but rotate your grip so your palms face upward (supinated). This shift moves a significant portion of the load from your lats onto your biceps and brachialis. Pull toward your lower chest or upper abdomen, keeping your elbows close to your body. This is a key exercise for addressing your arm muscle deficit from the scan."
+          },
+          {
+            "id": "bcurl",
+            "name": "Band bicep curl",
+            "muscles": "Biceps brachii · brachialis · brachioradialis",
+            "sets": 3,
+            "reps": "12–15",
+            "rest": 75,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/",
+            "tip": "Stand on the centre of the band with both feet, a handle in each hand, palms forward. Keeping your elbows pinned to your sides — they act as a hinge, not a lever — curl both handles toward your shoulders. Squeeze hard at the top. Then lower slowly over 3 full seconds. The eccentric (lowering) phase produces more muscle damage and therefore more growth stimulus than the curl itself. Resist the urge to drop the weight.",
+            "warn": "Light bands only — use lowest tension available"
+          },
+          {
+            "id": "pullap",
+            "name": "Band pull-apart",
+            "muscles": "Rear deltoid · rhomboids · mid and lower traps",
+            "sets": 3,
+            "reps": "15–20",
+            "rest": 60,
+            "url": "https://www.healthline.com/health/fitness/back-exercises-with-bands",
+            "tip": "Hold the band at shoulder width, arms straight in front of you, palms down. Pull the band apart by driving both hands outward until your arms form a T. Squeeze your rear delts and hold for one second at the widest point. Control the return — don't let the band snap back. This looks deceptively easy; by rep 15 with a full squeeze at each rep, you'll feel it. Keep this as a light band exercise only.",
+            "warn": "Light bands only — keep tension low"
+          }
+        ]
+      },
+      {
+        "lbl": "Block 3 — core",
+        "exs": [
+          {
+            "id": "trxplnk",
+            "name": "TRX plank (feet in straps)",
+            "muscles": "Full core · shoulders · serratus anterior",
+            "sets": 3,
+            "reps": "20–30 sec",
+            "rest": 60,
+            "url": "https://www.trxtraining.com/blogs/news/trx-weekly-exercise-trx-plank",
+            "tip": "Place both feet in the TRX foot cradles with toes pointed. Walk your hands out until you're in a push-up position with straight arms. Brace everything — squeeze your glutes, brace your core, push the floor away with your hands. The instability of the suspension trainer means your core has to work significantly harder than on a floor plank. Start with 20 seconds and build from there."
+          },
+          {
+            "id": "tap",
+            "name": "Plank shoulder taps",
+            "muscles": "Core · obliques · anti-rotation",
+            "sets": 3,
+            "reps": "10 taps/side",
+            "rest": 60,
+            "url": "https://www.healthline.com/health/14-plank-variations-your-core-will-thank-you-for-later",
+            "tip": "High plank position on straight arms. Keeping your hips absolutely level — this is everything — lift your right hand and tap your left shoulder, then return it to the floor before moving the other hand. If your hips rock side to side, widen your foot stance slightly until you can control it, then narrow over time. Slow and controlled is the only way this exercise does what it's supposed to do."
+          },
+          {
+            "id": "hollow",
+            "name": "Hollow hold",
+            "muscles": "Transverse abdominis · rectus abdominis · hip flexors",
+            "sets": 3,
+            "reps": "20–30 sec",
+            "rest": 60,
+            "url": "https://www.healthline.com/nutrition/hollow-hold",
+            "tip": "Lie on your back and press your entire lower back into the floor — this is the non-negotiable starting point. Extend arms overhead and legs straight, then lift arms, head, shoulders and legs slightly off the floor. The lower your legs, the harder it is. If your lower back lifts off the floor at any point, raise your legs higher until it doesn't. This is a gymnastics staple and one of the best pure anterior core exercises."
+          },
+          {
+            "id": "sidedip",
+            "name": "Side plank with hip dip",
+            "muscles": "Obliques · glute medius · hip abductors",
+            "sets": 2,
+            "reps": "10 reps/side",
+            "rest": 60,
+            "url": "https://www.healthline.com/health/14-plank-variations-your-core-will-thank-you-for-later",
+            "tip": "Get into a side plank — elbow under shoulder, body straight. From there, lower your hip toward the floor without touching it, then drive it back up past neutral, pausing briefly at the top. One dip + one drive = one rep. Keep your torso from rotating throughout — the rotation is the failure mode. This is the loaded progression from the static side plank in Session A."
+          }
+        ]
+      },
+      {
+        "lbl": "Balance · 8 min",
+        "exs": [
+          {
+            "id": "rdl",
+            "name": "Single leg RDL (bodyweight)",
+            "muscles": "Hamstrings · glutes · proprioception",
+            "sets": 3,
+            "reps": "8 reps/side",
+            "rest": 60,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/329/single-leg-romanian-deadlift/",
+            "tip": "Stand on one leg with a soft knee bend. Hinge at your hip — not your waist — and reach your torso forward while your free leg extends straight behind you as a counterbalance. Think of your body as a lever pivoting at the hip, not folding at the spine. Hold the lowest position for one second, then drive through your glute to return to standing. Your legs are already strong from hockey — the challenge here is balance and control, not strength."
+          },
+          {
+            "id": "vor_b",
+            "name": "VOR tracking (chiropractor)",
+            "muscles": "Vestibular · oculomotor · cerebellum",
+            "sets": 2,
+            "reps": "10 sweeps × 2 planes × 2 feet",
+            "rest": 0,
+            "url": "https://www.healthline.com/health/vestibular-exercises",
+            "tip": "Semi-tandem stance, one eye covered, track your thumb through the vertical and horizontal planes. Switch foot position and repeat. The progression over the coming weeks is to narrow your stance: semi-tandem → near-tandem → full heel-to-toe tandem. The heel-to-toe position removes almost all base of support and forces near-total reliance on your vestibular system. Expect this to take months to master."
+          },
+          {
+            "id": "bal_b",
+            "name": "Single leg balance",
+            "muscles": "Proprioception · ankle stabilisers",
+            "sets": 1,
+            "reps": "30 sec × 4  (each leg, eyes open + closed)",
+            "rest": 0,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/32/front-plank/",
+            "tip": "Hold for 30 seconds on each leg with eyes open, then repeat with eyes closed. In Session B, after the single leg RDL, your stabilisers will be more fatigued — so the balance challenge is harder than it looks. Progress by adding slow head turns left and right while holding the balance."
+          }
+        ]
+      }
+    ]
+  }
+}
