@@ -27,6 +27,28 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(stored){const parsed=JSON.parse(stored);if(Array.isArray(parsed))S.history=parsed;}
   }catch(e){S.history=[];}
   render();updateProg();updateTimerBtn();
+
+  // Position mini-bar just below the sticky navigation elements
+  (function positionMiniBar() {
+    const nav = document.querySelector('.top-nav');
+    const hdr = document.querySelector('.sticky-hdr');
+    const offset = (nav ? nav.offsetHeight : 0) + (hdr ? hdr.offsetHeight : 0);
+    if (offset > 0) document.getElementById('mini-bar').style.top = offset + 'px';
+  })();
+
+  // Show mini-bar when workout panel header is scrolled out of view
+  const panelHdr = document.querySelector('.workout-panel-hdr');
+  const miniBar  = document.getElementById('mini-bar');
+  if (panelHdr && miniBar) {
+    const obs = new IntersectionObserver(([entry]) => {
+      if (S.view !== 'workout') return;
+      const show = !entry.isIntersecting;
+      miniBar.classList.toggle('mini-bar--visible', show);
+      miniBar.setAttribute('aria-hidden', String(!show));
+      if (show) updateMiniBar();
+    }, { threshold: 0 });
+    obs.observe(panelHdr);
+  }
 });
 
 function switchSession(k){
@@ -42,6 +64,7 @@ function switchSession(k){
   document.getElementById('wrap').classList.toggle('is-b',k==='B');
   document.getElementById('prog-fill').style.background=ACCENT[k];
   render();updateProg();updateTimerBtn();
+  updateMiniBar();
 }
 
 function setTab(t){
@@ -50,7 +73,10 @@ function setTab(t){
   document.getElementById('tab-history').style.display=t==='history'?'':'none';
   document.getElementById('nav-workout').classList.toggle('top-tab-active',t==='workout');
   document.getElementById('nav-history').classList.toggle('top-tab-active',t==='history');
-  if(t==='history')renderHist();
+  if(t==='history'){
+    document.getElementById('mini-bar').classList.remove('mini-bar--visible');
+    renderHist();
+  }
 }
 
 function openRunSheet(){
@@ -264,6 +290,7 @@ function updateProg(){
   document.getElementById('prog-sets').textContent=done+' / '+tot;
   document.getElementById('prog-pct').textContent=pct+'%';
   document.getElementById('prog-fill').style.width=pct+'%';
+  updateMiniBar();
 }
 
 function updateTimerBtn(){
@@ -287,6 +314,7 @@ function startEl(){
     S.elapsed=Math.floor((S.accumulatedMs+Date.now()-S.wStart)/1000);
     const m=String(Math.floor(S.elapsed/60)).padStart(2,'0'),s=String(S.elapsed%60).padStart(2,'0');
     td.textContent=m+':'+s;
+    updateMiniBar();
   },1000);
   updateTimerBtn();
 }
@@ -301,6 +329,7 @@ function pauseEl(){
     document.getElementById('rest-row').style.display='none';
   }
   updateTimerBtn();
+  updateMiniBar();
 }
 
 function toggleTimer(){
@@ -329,9 +358,38 @@ function updRest(){
   document.getElementById('rest-fill').style.width=pct+'%';
   const ratio=S.restDuration>0?S.restSecs/S.restDuration:0;
   document.getElementById('rest-fill').style.background=ratio>0.5?'#22C55E':ratio>0.17?'#F59E0B':'#EF4444';
+  updateMiniBar();
 }
 
-function stopRest(){clearInterval(restInt);S.restSecs=0;document.getElementById('rest-row').style.display='none';}
+function stopRest(){clearInterval(restInt);S.restSecs=0;document.getElementById('rest-row').style.display='none';updateMiniBar();}
+
+function updateMiniBar() {
+  const timerEl = document.getElementById('mini-timer');
+  const fillEl  = document.getElementById('mini-prog-fill');
+  const rightEl = document.getElementById('mini-right');
+  if (!timerEl) return;
+
+  // Elapsed timer
+  const m = String(Math.floor(S.elapsed / 60)).padStart(2, '0');
+  const s = String(S.elapsed % 60).padStart(2, '0');
+  timerEl.textContent = S.timerState === 'idle' ? '--:--' : m + ':' + s;
+
+  // Progress bar
+  const exs = allExs(S.sess);
+  const tot  = exs.reduce((sum, e) => sum + e.sets, 0);
+  const done = exs.reduce((sum, e) => sum + ((S.sets[e.id] || []).filter(Boolean).length), 0);
+  const pct  = tot > 0 ? Math.round(done / tot * 100) : 0;
+  fillEl.style.width = pct + '%';
+
+  // Right side: rest countdown when active, otherwise set count
+  if (S.restSecs > 0) {
+    rightEl.textContent = 'Rest ' + S.restSecs + 's';
+    rightEl.classList.add('mini-resting');
+  } else {
+    rightEl.textContent = done + '/' + tot;
+    rightEl.classList.remove('mini-resting');
+  }
+}
 
 function saveSession(){
   const exs=allExs(S.sess);const d=DATA[S.sess];
@@ -394,6 +452,7 @@ function dismissCompletion(){
   const td=document.getElementById('timer-disp');
   td.textContent='--:--';td.style.color='var(--color-text-tertiary, #6a6a71)';
   render();updateProg();updateTimerBtn();
+  updateMiniBar();
 }
 
 function loadHistory(ev){

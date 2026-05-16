@@ -1240,3 +1240,73 @@
   font-variant-numeric:tabular-nums;
   font-weight:600;
 }
+
+/* ============================= MINI BAR ============================= */
+/* Sticky compact bar that appears below .top-nav (49px) + .sticky-hdr.
+   The exact .sticky-hdr height varies with content/padding, so app.js
+   measures both at runtime and overrides the `top` value below. */
+#mini-bar {
+  position: sticky;
+  top: 0; /* JS overrides this to sit below .sticky-hdr */
+  z-index: 20;
+  background: var(--color-background-secondary, #1f1f24);
+  border-bottom: 1px solid var(--color-border-tertiary, #222227);
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.2s ease, opacity 0.15s ease;
+  pointer-events: none;
+}
+#mini-bar.mini-bar--visible {
+  max-height: 44px;
+  opacity: 1;
+  pointer-events: auto;
+}
+.mini-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 36px;
+}
+#mini-timer {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f1f3);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.mini-prog-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.mini-prog-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--color-border-tertiary, #222227);
+  border-radius: 2px;
+  overflow: hidden;
+}
+#mini-prog-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent, #5a8cd6);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+#mini-right {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary, #6a6a71);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: right;
+}
+#mini-right.mini-resting {
+  color: var(--color-text-primary, #f1f1f3);
+}
