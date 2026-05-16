@@ -40,14 +40,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   const panelHdr = document.querySelector('.workout-panel-hdr');
   const miniBar  = document.getElementById('mini-bar');
   if (panelHdr && miniBar) {
-    const obs = new IntersectionObserver(([entry]) => {
+    const updateMiniBarVisibility = () => {
       if (S.view !== 'workout') return;
-      const show = !entry.isIntersecting;
+      const rect = panelHdr.getBoundingClientRect();
+      const show = rect.bottom <= (document.querySelector('.sticky-hdr')?.offsetHeight || 0);
       miniBar.classList.toggle('mini-bar--visible', show);
       miniBar.setAttribute('aria-hidden', String(!show));
       if (show) updateMiniBar();
-    }, { threshold: 0 });
+    };
+
+    const obs = new IntersectionObserver(updateMiniBarVisibility, { threshold: 0 });
     obs.observe(panelHdr);
+
+    window.addEventListener('scroll', updateMiniBarVisibility, { passive: true });
   }
 });
 
