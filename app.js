@@ -5,7 +5,7 @@ const ACCENT={A:'#5a8cd6',B:'#d49355'};
 
 let DATA;
 
-let S={sess:'A',view:'workout',sets:{},notes:{},exp:{},wStart:null,elapsed:0,restSecs:0,restDuration:90,history:[],timerState:'idle',accumulatedMs:0};
+let S={sess:'A',view:'workout',sets:{},notes:{},exp:{},wStart:null,elapsed:0,restSecs:0,restDuration:90,restEndAt:0,history:[],timerState:'idle',accumulatedMs:0};
 let elInt=null,restInt=null;
 let CAL={year:new Date().getFullYear(),month:new Date().getMonth()};
 
@@ -306,10 +306,18 @@ function toggleTimer(){
 }
 
 function startRest(duration){
-  S.restDuration=duration;S.restSecs=duration;clearInterval(restInt);
-  document.getElementById('rest-row').style.display='flex';
+  S.restDuration = duration;
+  S.restEndAt = Date.now() + duration * 1000;
+  clearInterval(restInt);
+  document.getElementById('rest-row').style.display = 'flex';
+  S.restSecs = duration;
   updRest();
-  restInt=setInterval(()=>{if(S.restSecs>0){S.restSecs--;updRest();}else stopRest();},1000);
+  restInt = setInterval(() => {
+    const remaining = Math.max(0, Math.ceil((S.restEndAt - Date.now()) / 1000));
+    S.restSecs = remaining;
+    updRest();
+    if (remaining === 0) stopRest();
+  }, 250);
 }
 
 function updRest(){
