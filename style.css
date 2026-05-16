@@ -639,7 +639,7 @@
   font-size:13.5px;
   padding:11px 13px;
   resize:none;
-  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-family:var(--mono);
   color:var(--color-text-primary, #f1f1f3);
   background:var(--color-background-secondary, #1f1f24);
   border:1px solid var(--color-border-tertiary, #222227);
@@ -663,7 +663,7 @@
 .btn-primary{
   flex:1;
   padding:15px 18px;
-  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-family:var(--mono);
   font-size:14px;
   font-weight:500;
   background:var(--color-text-primary, #f1f1f3);
@@ -683,7 +683,7 @@
 
 .btn-secondary{
   padding:15px 18px;
-  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-family:var(--mono);
   font-size:14px;
   font-weight:500;
   background:var(--color-background-primary, #16161a);
@@ -921,7 +921,7 @@
 .run-select,.run-input-num{
   font-size:13.5px;
   padding:11px 13px;
-  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
+  font-family:var(--mono);
   color:var(--color-text-primary, #f1f1f3);
   background:var(--color-background-secondary, #1f1f24);
   border:1px solid var(--color-border-tertiary, #222227);
