@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Oswald:wght@700&display=swap">
 </head>
 <body>
 
@@ -37,8 +37,6 @@
   <div class="sticky-hdr">
     <div class="hdr-top">
       <div class="hdr-brand">
-        <span class="hdr-mark"><i class="ti ti-barbell" aria-hidden="true"></i></span>
-        <span class="hdr-name">Lennart's training</span>
         <span id="date-disp" class="hdr-date"></span>
       </div>
       <div class="hdr-right">
@@ -230,15 +228,141 @@
 
 <script src="app.js" defer></script>
 
+<style>
+#sw-update-banner{
+  position:fixed;
+  left:12px;
+  right:12px;
+  bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index:9000;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  background:var(--color-background-secondary, #1f1f24);
+  border:1px solid var(--color-border-secondary, #2c2c32);
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  font-family:var(--mono, 'JetBrains Mono', ui-monospace, monospace);
+  color:var(--color-text-primary, #f1f1f3);
+  max-width:480px;
+  margin:0 auto;
+  animation:sw-update-banner-in 220ms ease-out;
+}
+@keyframes sw-update-banner-in{
+  from{transform:translateY(20px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
+}
+#sw-update-banner .sw-update-msg{
+  flex:1;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:0.01em;
+}
+#sw-update-banner .sw-update-apply{
+  font-family:inherit;
+  font-size:13px;
+  font-weight:600;
+  padding:8px 14px;
+  border-radius:8px;
+  border:1px solid var(--accent, #5a8cd6);
+  background:var(--accent, #5a8cd6);
+  color:#0c1424;
+  cursor:pointer;
+}
+#sw-update-banner .sw-update-apply:hover{
+  background:var(--accent-a-deep, #3b6db8);
+  border-color:var(--accent-a-deep, #3b6db8);
+}
+#sw-update-banner .sw-update-dismiss{
+  font-family:inherit;
+  font-size:18px;
+  line-height:1;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--color-text-secondary, #a3a3a9);
+  cursor:pointer;
+}
+#sw-update-banner .sw-update-dismiss:hover{
+  color:var(--color-text-primary, #f1f1f3);
+  background:var(--color-background-primary, #16161a);
+  border-color:var(--color-border-secondary, #2c2c32);
+}
+</style>
+
 <script>
 if ('serviceWorker' in navigator) {
+  let refreshing = false;
+  const reloadOnce = () => {
+    if (refreshing) return;
+    refreshing = true;
+    location.reload();
+  };
+
+  const showUpdateBanner = (reg) => {
+    if (document.getElementById('sw-update-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'sw-update-banner';
+    banner.setAttribute('role', 'status');
+    banner.setAttribute('aria-live', 'polite');
+
+    const msg = document.createElement('span');
+    msg.className = 'sw-update-msg';
+    msg.textContent = 'An update is available';
+
+    const applyBtn = document.createElement('button');
+    applyBtn.type = 'button';
+    applyBtn.className = 'sw-update-apply';
+    applyBtn.textContent = 'Update now';
+
+    const dismissBtn = document.createElement('button');
+    dismissBtn.type = 'button';
+    dismissBtn.className = 'sw-update-dismiss';
+    dismissBtn.setAttribute('aria-label', 'Dismiss update notice');
+    dismissBtn.innerHTML = '&times;';
+
+    applyBtn.addEventListener('click', () => {
+      applyBtn.disabled = true;
+      navigator.serviceWorker.addEventListener('controllerchange', reloadOnce);
+      const waiting = reg.waiting;
+      if (waiting) {
+        waiting.postMessage({ type: 'SKIP_WAITING' });
+      } else {
+        reloadOnce();
+      }
+    });
+
+    dismissBtn.addEventListener('click', () => {
+      banner.remove();
+    });
+
+    banner.appendChild(msg);
+    banner.appendChild(applyBtn);
+    banner.appendChild(dismissBtn);
+    document.body.appendChild(banner);
+  };
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').then((reg) => {
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        reloadOnce();
+        return;
+      }
+
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
+        if (!newWorker) return;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
+            showUpdateBanner(reg);
           }
         });
       });
