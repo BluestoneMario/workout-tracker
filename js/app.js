@@ -6,6 +6,7 @@ import {
   dismissCompletion, updatePace, openRunSheet, closeRunSheet,
 } from './session.js';
 import { exportJSON, loadHistory, calPrev, calNext } from './history.js';
+import { initAudio, loadMuteState, toggleMute, isMuted } from './audio.js';
 
 let miniBarCooldown = false;
 
@@ -96,6 +97,22 @@ window.calNext = calNext;
 window.loadHistory = loadHistory;
 window.setNote = setNote;
 
+function updateMuteBtn() {
+  const btn = document.getElementById('mute-btn');
+  if (!btn) return;
+  btn.innerHTML = isMuted() ? '&#x1F507;' : '&#x1F50A;';
+  btn.setAttribute('aria-label', isMuted() ? 'Unmute sound' : 'Mute sound');
+  btn.setAttribute('aria-pressed', String(isMuted()));
+}
+
+function toggleMuteBtn() {
+  initAudio();
+  toggleMute();
+  updateMuteBtn();
+}
+
+window.toggleMuteBtn = toggleMuteBtn;
+
 window.addEventListener('DOMContentLoaded', async () => {
   try {
     const res = await fetch('./routines.json');
@@ -108,9 +125,15 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('date-disp').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   document.getElementById('run-date').value = new Date().toISOString().split('T')[0];
   loadHistoryFromStorage();
+  loadMuteState();
+  updateMuteBtn();
   render();
   updateProg();
   updateTimerBtn();
+
+  const onFirstGesture = () => { initAudio(); };
+  document.addEventListener('click', onFirstGesture, { capture: true });
+  document.addEventListener('touchstart', onFirstGesture, { capture: true, passive: true });
 
   (function positionMiniBar() {
     const nav = document.querySelector('.top-nav');

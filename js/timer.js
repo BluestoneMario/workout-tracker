@@ -1,5 +1,6 @@
 import { S } from './state.js';
 import { updateMiniBar } from './render.js';
+import { playRestEndBeep } from './audio.js';
 
 let elInt = null;
 let restInt = null;
@@ -49,7 +50,10 @@ export function startRest(duration) {
     const remaining = Math.max(0, Math.ceil((S.restEndAt - Date.now()) / 1000));
     S.restSecs = remaining;
     updRest();
-    if (remaining === 0) stopRest();
+    if (remaining === 0) {
+      playRestEndBeep();
+      stopRest();
+    }
   }, 250);
 }
 
