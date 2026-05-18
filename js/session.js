@@ -1,4 +1,4 @@
-import { S, ACCENT, allExs, getData, saveSessionRecord, getDefaultUnit } from './state.js';
+import { S, ACCENT, allExs, getData, saveSessionRecord, getDefaultUnit, inputValueToKg } from './state.js';
 import { startEl, startRest, resetTimer, updateTimerBtn } from './timer.js';
 import { render, updateProg, updateMiniBar, showCompletion } from './render.js';
 
@@ -9,6 +9,7 @@ export function switchSession(k) {
   S.sets = {};
   S.notes = {};
   S.exp = {};
+  S.weightPrompt = null;
   S.wStart = null;
   S.elapsed = 0;
   S.timerState = 'idle';
@@ -32,28 +33,52 @@ export function toggleSet(id, i) {
   const upd = [...arr];
   upd[i] = cur
     ? { ...cur, done: !wasDone }
-    : { done: true, weight: null, unit: getDefaultUnit() };
+    : { done: true, weight: null, unit: 'kg' };
   S.sets[id] = upd;
   if (!wasDone) {
     if (S.timerState === 'idle') startEl();
     const restDur = ex.rest === 0 ? 0 : (ex.rest != null ? ex.rest : 90);
     if (restDur > 0) startRest(restDur);
+    S.weightPrompt = { exId: id, setIdx: i };
+  } else if (S.weightPrompt && S.weightPrompt.exId === id && S.weightPrompt.setIdx === i) {
+    S.weightPrompt = null;
   }
   render();
   updateProg();
 }
 
+export function confirmWeight() {
+  if (!S.weightPrompt) return;
+  const { exId, setIdx } = S.weightPrompt;
+  const input = document.getElementById('weight-input-active');
+  const raw = input ? input.value : '';
+  const kg = inputValueToKg(raw, getDefaultUnit());
+  const arr = S.sets[exId];
+  if (Array.isArray(arr) && arr[setIdx]) {
+    const next = [...arr];
+    next[setIdx] = { ...arr[setIdx], weight: kg };
+    S.sets[exId] = next;
+  }
+  S.weightPrompt = null;
+  render();
+}
+
+export function skipWeight() {
+  if (!S.weightPrompt) return;
+  S.weightPrompt = null;
+  render();
+}
+
 export async function saveSession() {
   const exs = allExs(S.sess);
   const d = getData()[S.sess];
-  const unit = getDefaultUnit();
   const exercises = exs.map(e => {
     const arr = S.sets[e.id] || [];
     const sets = Array.from({ length: e.sets }, (_, i) => {
       const cur = arr[i];
       return cur
-        ? { done: !!cur.done, weight: cur.weight ?? null, unit: cur.unit || unit }
-        : { done: false, weight: null, unit };
+        ? { done: !!cur.done, weight: cur.weight ?? null, unit: 'kg' }
+        : { done: false, weight: null, unit: 'kg' };
     });
     return {
       id: e.id,
@@ -86,6 +111,7 @@ export function dismissCompletion() {
   S.sets = {};
   S.notes = {};
   S.exp = {};
+  S.weightPrompt = null;
   S.wStart = null;
   S.elapsed = 0;
   S.timerState = 'idle';

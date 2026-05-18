@@ -1,4 +1,4 @@
-import { S, CAL, getData, allExs, countDoneSets } from './state.js';
+import { S, CAL, getData, allExs, countDoneSets, kgToDisplayValue, findLastWeightForSet, getDefaultUnit } from './state.js';
 
 function findLastEntry(exId) {
   for (const sess of S.history) {
@@ -56,6 +56,15 @@ export function render() {
       const hdr = document.createElement('div');
       hdr.className = 'card-hdr';
       hdr.onclick = () => toggleExp(ex.id);
+      const unit = getDefaultUnit();
+      const bubblesHtml = arr.map((_, i) => {
+        const cur = arr[i];
+        const isDone = !!(cur && cur.done);
+        const wLabel = (cur && cur.done && cur.weight != null)
+          ? `<span class="bubble-weight">${kgToDisplayValue(cur.weight, unit)}${unit}</span>`
+          : '';
+        return `<div class="bubble-wrap"><button class="bubble${isDone ? ' on' : ''}" onclick="event.stopPropagation();toggleSet('${ex.id}',${i})" aria-label="Set ${i + 1}">${isDone ? '<i class="ti ti-check" aria-hidden="true"></i>' : (i + 1)}</button>${wLabel}</div>`;
+      }).join('');
       hdr.innerHTML = `
         <div class="card-hdr-top">
           <div class="ex-title-wrap">
@@ -70,10 +79,31 @@ export function render() {
         </div>
         ${lastTimeHtml}
         <div class="set-row">
-          ${arr.map((_, i) => { const isDone = !!(arr[i] && arr[i].done); return `<button class="bubble${isDone ? ' on' : ''}" onclick="event.stopPropagation();toggleSet('${ex.id}',${i})" aria-label="Set ${i + 1}">${isDone ? '<i class="ti ti-check" aria-hidden="true"></i>' : (i + 1)}</button>`; }).join('')}
+          ${bubblesHtml}
           <span class="set-count">${done}/${ex.sets}</span>
         </div>`;
       card.appendChild(hdr);
+
+      if (S.weightPrompt && S.weightPrompt.exId === ex.id) {
+        const setIdx = S.weightPrompt.setIdx;
+        const prior = findLastWeightForSet(ex.id, setIdx);
+        const prefill = prior != null ? kgToDisplayValue(prior, unit) : '';
+        const wRow = document.createElement('form');
+        wRow.className = 'weight-input-row';
+        wRow.onclick = (e) => e.stopPropagation();
+        wRow.onsubmit = (e) => { e.preventDefault(); confirmWeight(); };
+        wRow.innerHTML = `
+          <label class="weight-input-lbl">Set ${setIdx + 1} weight</label>
+          <div class="weight-input-grp">
+            <input id="weight-input-active" class="weight-input" type="number" step="0.5" min="0" inputmode="decimal" enterkeyhint="done" placeholder="${unit}" value="${prefill}">
+            <span class="weight-input-unit">${unit}</span>
+          </div>
+          <div class="weight-input-actions">
+            <button type="button" class="weight-skip-btn" onclick="skipWeight()">Skip</button>
+            <button type="submit" class="weight-done-btn">Done</button>
+          </div>`;
+        card.appendChild(wRow);
+      }
       if (S.exp[ex.id]) {
         const body = document.createElement('div');
         body.className = 'card-body';
@@ -87,6 +117,13 @@ export function render() {
       el.appendChild(card);
     });
   });
+
+  if (S.weightPrompt) {
+    requestAnimationFrame(() => {
+      const inp = document.getElementById('weight-input-active');
+      if (inp) { inp.focus(); inp.select(); }
+    });
+  }
 }
 
 export function toggleExp(id) {
@@ -204,7 +241,22 @@ export function renderHist() {
     }
     const pct = s.totalSets > 0 ? Math.round(s.totalSetsCompleted / s.totalSets * 100) : 0;
     const dur = s.durationSeconds ? Math.floor(s.durationSeconds / 60) + 'm ' + s.durationSeconds % 60 + 's' : '—';
-    const notes = (s.exercises || []).filter(e => e.notes).map(e => `<div class="hist-note"><b>${e.name}:</b> ${e.notes}</div>`).join('');
+    const unit = getDefaultUnit();
+    const lines = (s.exercises || []).flatMap(e => {
+      const out = [];
+      if (Array.isArray(e.sets) && e.sets.some(x => x && x.weight != null)) {
+        const doneCount = e.sets.filter(x => x && x.done).length;
+        const weights = e.sets
+          .filter(x => x && x.done && x.weight != null)
+          .map(x => kgToDisplayValue(x.weight, unit))
+          .join(' / ');
+        out.push(`<div class="hist-note"><b>${e.name}:</b> ${doneCount} set${doneCount !== 1 ? 's' : ''} — ${weights} ${unit}</div>`);
+      }
+      if (e.notes) {
+        out.push(`<div class="hist-note"><b>${e.name}:</b> ${e.notes}</div>`);
+      }
+      return out;
+    }).join('');
     return `<div class="hist-card">
       <div class="hist-card-top">
         <div>
@@ -216,7 +268,7 @@ export function renderHist() {
       <div class="hist-bar">
         <div class="hist-bar-fill" style="background:${s.completed ? '#22C55E' : '#F59E0B'};width:${pct}%;"></div>
       </div>
-      ${notes ? `<div class="hist-notes">${notes}</div>` : ''}
+      ${lines ? `<div class="hist-notes">${lines}</div>` : ''}
     </div>`;
   }).join('');
 }

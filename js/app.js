@@ -1,10 +1,11 @@
-import { S, setData, setNote, loadHistoryFromDB, loadDefaultUnit } from './state.js';
+import { S, setData, setNote, loadHistoryFromDB, loadDefaultUnit, setDefaultUnit, getDefaultUnit } from './state.js';
 import { openDB, migrateFromLocalStorage } from './db.js';
 import { toggleTimer, stopRest, updateTimerBtn } from './timer.js';
-import { render, updateProg, updateMiniBar, toggleExp, setTab } from './render.js';
+import { render, updateProg, updateMiniBar, toggleExp, setTab, renderHist } from './render.js';
 import {
   switchSession, toggleSet, saveSession, saveRun,
   dismissCompletion, updatePace, openRunSheet, closeRunSheet,
+  confirmWeight, skipWeight,
 } from './session.js';
 import { exportJSON, loadHistory, calPrev, calNext } from './history.js';
 import { initAudio, loadMuteState, toggleMute, isMuted } from './audio.js';
@@ -41,6 +42,7 @@ function openSettingsSheet() {
     navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' });
     setTimeout(() => navigator.serviceWorker.removeEventListener('message', onMsg), 1000);
   }
+  updateUnitToggleUI();
   const storageEl = document.getElementById('storage-usage');
   if (storageEl) {
     storageEl.textContent = '—';
@@ -100,6 +102,25 @@ window.calPrev = calPrev;
 window.calNext = calNext;
 window.loadHistory = loadHistory;
 window.setNote = setNote;
+window.confirmWeight = confirmWeight;
+window.skipWeight = skipWeight;
+
+function updateUnitToggleUI() {
+  const u = getDefaultUnit();
+  const kgBtn = document.getElementById('unit-btn-kg');
+  const lbBtn = document.getElementById('unit-btn-lb');
+  if (kgBtn) kgBtn.classList.toggle('unit-toggle-btn--on', u === 'kg');
+  if (lbBtn) lbBtn.classList.toggle('unit-toggle-btn--on', u === 'lb');
+}
+
+async function setDisplayUnit(u) {
+  await setDefaultUnit(u);
+  updateUnitToggleUI();
+  render();
+  if (S.view === 'history') renderHist();
+}
+
+window.setDisplayUnit = setDisplayUnit;
 
 function updateMuteBtn() {
   const btn = document.getElementById('mute-btn');
@@ -141,6 +162,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   const onFirstGesture = () => { initAudio(); };
   document.addEventListener('click', onFirstGesture, { capture: true });
   document.addEventListener('touchstart', onFirstGesture, { capture: true, passive: true });
+
+  document.addEventListener('click', (e) => {
+    if (!S.weightPrompt) return;
+    if (e.target.closest('.weight-input-row')) return;
+    if (e.target.closest('.bubble')) return;
+    skipWeight();
+  }, true);
 
   (function positionMiniBar() {
     const nav = document.querySelector('.top-nav');
