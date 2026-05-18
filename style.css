@@ -718,11 +718,11 @@ html {
   border:1px solid var(--color-border-tertiary, #222227);
   cursor:pointer;
   transition:background .15s, border-color .15s, color .15s;
-  font-size:18px;
+  font-size:20px;
 }
 .reps-skip-btn{
   background:transparent;
-  color:var(--color-text-secondary, #a3a3a9);
+  color:var(--color-text-primary, #f1f1f3);
 }
 .reps-skip-btn:hover{
   border-color:var(--color-text-secondary, #a3a3a9);
@@ -731,7 +731,7 @@ html {
 .reps-done-btn{
   background:var(--accent);
   border-color:var(--accent);
-  color:var(--color-background-primary, #16161a);
+  color:#ffffff;
 }
 .reps-done-btn:hover{
   background:var(--accent-a-deep);
@@ -846,12 +846,13 @@ html {
   justify-content:center;
   gap:8px;
   font-family:var(--mono);
-  font-size:14px;
+  font-size:12px;
   font-weight:600;
   border-radius:10px;
   border:1px solid var(--color-border-tertiary, #222227);
   cursor:pointer;
-  letter-spacing:0.02em;
+  text-transform:uppercase;
+  letter-spacing:0.10em;
   transition:background .15s, border-color .15s, color .15s;
 }
 .edit-unmark-btn{
@@ -865,7 +866,7 @@ html {
 .edit-save-btn{
   background:var(--accent);
   border-color:var(--accent);
-  color:var(--color-background-primary, #16161a);
+  color:#ffffff;
 }
 .edit-save-btn:hover{
   background:var(--accent-a-deep);
