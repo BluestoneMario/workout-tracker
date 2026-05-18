@@ -145,8 +145,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   updateTimerBtn();
 
   const onFirstGesture = () => { initAudio(); };
-  document.addEventListener('click', onFirstGesture, { capture: true });
-  document.addEventListener('touchstart', onFirstGesture, { capture: true, passive: true });
+  document.addEventListener('click', onFirstGesture, { capture: true, once: true });
+  document.addEventListener('touchstart', onFirstGesture, { capture: true, passive: true, once: true });
 
   document.addEventListener('click', (e) => {
     if (!S.repsPrompt) return;

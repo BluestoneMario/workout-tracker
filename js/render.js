@@ -1,11 +1,34 @@
 import { S, CAL, getData, allExs, countDoneSets, kgToDisplayValue, getDefaultUnit, parseTargetReps } from './state.js';
 
-function findLastEntry(exId) {
+function buildLastEntryMap() {
+  const map = new Map();
   for (const sess of S.history) {
-    const entry = (sess.exercises || []).find(e => e.id === exId);
-    if (entry) return { ...entry, date: sess.date };
+    if (!Array.isArray(sess.exercises)) continue;
+    for (const entry of sess.exercises) {
+      if (!entry || !entry.id || map.has(entry.id)) continue;
+      map.set(entry.id, { ...entry, date: sess.date });
+    }
   }
-  return null;
+  return map;
+}
+
+function formatLastSummary(entry, unit) {
+  if (!entry || !Array.isArray(entry.sets)) return '';
+  const doneSets = entry.sets.filter(x => x && x.done);
+  if (doneSets.length === 0) return '';
+  const hasReps = doneSets.some(x => x.reps != null);
+  if (!hasReps) return '';
+  const repsList = doneSets.map(x => x.reps != null ? '×' + x.reps : '×?').join(', ');
+  const weights = doneSets.map(x => x.weight != null ? x.weight : null);
+  const hasWeight = weights.some(w => w != null);
+  if (hasWeight) {
+    const uniq = [...new Set(weights.filter(w => w != null))];
+    const weightStr = uniq.length === 1
+      ? kgToDisplayValue(uniq[0], unit) + ' ' + unit
+      : weights.map(w => w != null ? kgToDisplayValue(w, unit) : '—').join(' / ') + ' ' + unit;
+    return repsList + ' @ ' + weightStr;
+  }
+  return repsList;
 }
 
 function formatDate(iso) {
@@ -31,6 +54,8 @@ export function render() {
   const d = DATA[S.sess];
   const el = document.getElementById('ex-list');
   el.innerHTML = '';
+  const lastEntryMap = buildLastEntryMap();
+  const displayUnit = getDefaultUnit();
   d.blocks.forEach(blk => {
     const div = document.createElement('div');
     div.className = 'blk-div';
@@ -44,13 +69,15 @@ export function render() {
       const card = document.createElement('div');
       card.className = 'ex-card' + (allDone ? ' done' : inProg ? ' prog' : '');
 
-      const lastEntry = findLastEntry(ex.id);
+      const lastEntry = lastEntryMap.get(ex.id);
       let lastTimeHtml = '';
       if (lastEntry) {
         const dateStr = formatDate(lastEntry.date);
         const rawNote = lastEntry.notes || '';
         const note = rawNote.length > 60 ? rawNote.slice(0, 60) + '…' : rawNote;
-        lastTimeHtml = `<div class="last-time"><span class="last-time-date">${dateStr}</span><span class="last-time-sets">${lastEntry.setsCompleted}/${lastEntry.totalSets} sets</span>${note ? `<span class="last-time-note">${note}</span>` : ''}</div>`;
+        const summary = formatLastSummary(lastEntry, displayUnit);
+        const summaryHtml = summary ? `<span class="last-time-sets">${summary}</span>` : '';
+        lastTimeHtml = `<div class="last-time"><span class="last-time-date">${dateStr}</span><span class="last-time-sets">${lastEntry.setsCompleted}/${lastEntry.totalSets} sets</span>${summaryHtml}${note ? `<span class="last-time-note">${note}</span>` : ''}</div>`;
       }
 
       const hdr = document.createElement('div');
