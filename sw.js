@@ -9,7 +9,7 @@
  * and clients pick up new assets on next activate.
  */
 
-const APP_VERSION = '1.3.1';
+const APP_VERSION = '1.3.2';
 const STATIC_CACHE = `workouttracker-static-${APP_VERSION}`;
 const FONTS_CACHE  = `workouttracker-fonts-${APP_VERSION}`;
 
@@ -17,7 +17,12 @@ const SHELL_URLS = [
   './',
   './index.html',
   './style.css',
-  './app.js',
+  './js/app.js',
+  './js/state.js',
+  './js/timer.js',
+  './js/render.js',
+  './js/session.js',
+  './js/history.js',
   './routines.json',
   './manifest.webmanifest',
   './icons/apple-touch-icon.png',
