@@ -1319,7 +1319,7 @@ html {
 
 /* ============================= COMPLETION OVERLAY ============================= */
 #completion-overlay{
-  position:absolute;
+  position:fixed;
   inset:0;
   z-index:10;
   background:var(--color-background-tertiary, #0c0c0f);
