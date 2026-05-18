@@ -55,6 +55,7 @@ export function saveSession() {
   };
   S.history = [sess, ...S.history];
   saveHistoryToStorage();
+  S.notes = {};
   showCompletion(sess);
 }
 

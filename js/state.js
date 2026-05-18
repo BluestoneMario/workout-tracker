@@ -26,6 +26,12 @@ export function allExs(k) { return _DATA[k].blocks.flatMap(b => b.exs); }
 
 export function setNote(id, v) { S.notes[id] = v; }
 
+export function migrateOldData() {
+  try {
+    localStorage.removeItem('training_notes');
+  } catch {}
+}
+
 export function loadHistoryFromStorage() {
   try {
     const stored = localStorage.getItem('training_history');

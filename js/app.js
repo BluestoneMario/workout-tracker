@@ -1,4 +1,4 @@
-import { S, setData, setNote, loadHistoryFromStorage } from './state.js';
+import { S, setData, setNote, loadHistoryFromStorage, migrateOldData } from './state.js';
 import { toggleTimer, stopRest, updateTimerBtn } from './timer.js';
 import { render, updateProg, updateMiniBar, toggleExp, setTab } from './render.js';
 import {
@@ -124,6 +124,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   document.getElementById('date-disp').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   document.getElementById('run-date').value = new Date().toISOString().split('T')[0];
+  migrateOldData();
   loadHistoryFromStorage();
   loadMuteState();
   updateMuteBtn();
