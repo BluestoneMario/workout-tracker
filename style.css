@@ -778,7 +778,7 @@ html {
   gap:6px;
 }
 .edit-field-lbl{
-  font-family:var(--mono);
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
   font-size:10.5px;
   font-weight:700;
   text-transform:uppercase;
@@ -825,7 +825,7 @@ html {
   font-weight:500;
 }
 .edit-input-unit{
-  font-family:var(--mono);
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
   font-size:13px;
   font-weight:600;
   color:var(--color-text-secondary, #a3a3a9);
@@ -845,7 +845,7 @@ html {
   align-items:center;
   justify-content:center;
   gap:8px;
-  font-family:var(--mono);
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
   font-size:12px;
   font-weight:600;
   border-radius:10px;
@@ -1462,6 +1462,15 @@ html {
 .sheet-close-btn:hover{
   border-color:var(--color-text-primary, #f1f1f3);
   color:var(--color-text-primary, #f1f1f3);
+}
+
+/* Settings sheet: switch UI chrome to sans (data values stay mono) */
+#settings-sheet .sheet-section-lbl,
+#settings-sheet .sheet-info-row-lbl,
+#settings-sheet .sheet-action-btn,
+#settings-sheet .sheet-close-btn,
+#settings-sheet .unit-toggle-btn{
+  font-family:var(--font-sans, -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif);
 }
 
 /* Per-exercise history sheet */
