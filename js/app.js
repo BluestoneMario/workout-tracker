@@ -12,19 +12,6 @@ import { initAudio, loadMuteState, toggleMute, isMuted } from './audio.js';
 
 let miniBarCooldown = false;
 
-async function getStorageStats() {
-  try {
-    if (navigator.storage && navigator.storage.estimate) {
-      const { usage = 0, quota = 0 } = await navigator.storage.estimate();
-      const usedMB = (usage / (1024 * 1024)).toFixed(2);
-      const quotaMB = quota ? Math.round(quota / (1024 * 1024)) : null;
-      const pct = quota ? Math.min(100, Math.round(usage / quota * 100)) : 0;
-      return { usedMB, quotaMB, pct };
-    }
-  } catch {}
-  return { usedMB: '?', quotaMB: null, pct: 0 };
-}
-
 function openSettingsSheet() {
   document.getElementById('settings-backdrop').classList.add('open');
   document.getElementById('settings-sheet').classList.add('open');
@@ -43,15 +30,6 @@ function openSettingsSheet() {
     setTimeout(() => navigator.serviceWorker.removeEventListener('message', onMsg), 1000);
   }
   updateUnitToggleUI();
-  const storageEl = document.getElementById('storage-usage');
-  if (storageEl) {
-    storageEl.textContent = '—';
-    getStorageStats().then(stats => {
-      storageEl.textContent = stats.quotaMB
-        ? stats.usedMB + ' MB used (~' + stats.pct + '% of ' + stats.quotaMB + ' MB)'
-        : stats.usedMB + ' MB used';
-    });
-  }
 }
 
 function closeSettingsSheet() {
