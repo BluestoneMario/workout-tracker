@@ -1,11 +1,14 @@
-const MUTE_KEY = 'workout_audio_muted';
+import { getSetting, putSetting } from './db.js';
+
+const MUTE_KEY = 'audio_muted';
 
 let audioCtx = null;
 let muted = false;
 
-export function loadMuteState() {
+export async function loadMuteState() {
   try {
-    muted = localStorage.getItem(MUTE_KEY) === '1';
+    const v = await getSetting(MUTE_KEY);
+    muted = !!v;
   } catch {
     muted = false;
   }
@@ -18,9 +21,7 @@ export function isMuted() {
 
 export function setMuted(v) {
   muted = !!v;
-  try {
-    localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
-  } catch {}
+  putSetting(MUTE_KEY, muted).catch(() => {});
 }
 
 export function toggleMute() {

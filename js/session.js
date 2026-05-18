@@ -1,4 +1,4 @@
-import { S, ACCENT, allExs, getData, saveHistoryToStorage } from './state.js';
+import { S, ACCENT, allExs, getData, saveSessionRecord, getDefaultUnit } from './state.js';
 import { startEl, startRest, resetTimer, updateTimerBtn } from './timer.js';
 import { render, updateProg, updateMiniBar, showCompletion } from './render.js';
 
@@ -26,12 +26,15 @@ export function switchSession(k) {
 
 export function toggleSet(id, i) {
   const ex = allExs(S.sess).find(e => e.id === id);
-  const arr = S.sets[id] || Array(ex.sets).fill(false);
-  const was = arr[i];
+  const arr = S.sets[id] || Array(ex.sets).fill(null);
+  const cur = arr[i];
+  const wasDone = !!(cur && cur.done);
   const upd = [...arr];
-  upd[i] = !was;
+  upd[i] = cur
+    ? { ...cur, done: !wasDone }
+    : { done: true, weight: null, unit: getDefaultUnit() };
   S.sets[id] = upd;
-  if (!was) {
+  if (!wasDone) {
     if (S.timerState === 'idle') startEl();
     const restDur = ex.rest === 0 ? 0 : (ex.rest != null ? ex.rest : 90);
     if (restDur > 0) startRest(restDur);
@@ -40,21 +43,40 @@ export function toggleSet(id, i) {
   updateProg();
 }
 
-export function saveSession() {
+export async function saveSession() {
   const exs = allExs(S.sess);
   const d = getData()[S.sess];
+  const unit = getDefaultUnit();
+  const exercises = exs.map(e => {
+    const arr = S.sets[e.id] || [];
+    const sets = Array.from({ length: e.sets }, (_, i) => {
+      const cur = arr[i];
+      return cur
+        ? { done: !!cur.done, weight: cur.weight ?? null, unit: cur.unit || unit }
+        : { done: false, weight: null, unit };
+    });
+    return {
+      id: e.id,
+      name: e.name,
+      setsCompleted: sets.filter(s => s.done).length,
+      totalSets: e.sets,
+      notes: S.notes[e.id] || '',
+      sets,
+    };
+  });
   const sess = {
+    id: String(Date.now()),
     date: new Date().toISOString().split('T')[0],
     sessionType: S.sess,
     sessionLabel: d.name + ' — ' + d.sub,
     durationSeconds: S.elapsed,
-    exercises: exs.map(e => ({ id: e.id, name: e.name, setsCompleted: (S.sets[e.id] || []).filter(Boolean).length, totalSets: e.sets, notes: S.notes[e.id] || '' })),
-    totalSetsCompleted: exs.reduce((s, e) => s + ((S.sets[e.id] || []).filter(Boolean).length), 0),
-    totalSets: exs.reduce((s, e) => s + e.sets, 0),
-    completed: exs.every(e => (S.sets[e.id] || []).filter(Boolean).length === e.sets),
+    exercises,
+    totalSetsCompleted: exercises.reduce((s, e) => s + e.setsCompleted, 0),
+    totalSets: exercises.reduce((s, e) => s + e.totalSets, 0),
+    completed: exercises.every(e => e.setsCompleted === e.totalSets),
   };
   S.history = [sess, ...S.history];
-  saveHistoryToStorage();
+  await saveSessionRecord(sess);
   S.notes = {};
   showCompletion(sess);
 }
@@ -105,7 +127,7 @@ export function updatePace() {
   }
 }
 
-export function saveRun() {
+export async function saveRun() {
   const dist = parseFloat(document.getElementById('run-dist').value) || 0;
   const hh = parseInt(document.getElementById('run-hh').value) || 0;
   const mm = parseInt(document.getElementById('run-mm').value) || 0;
@@ -120,6 +142,7 @@ export function saveRun() {
   const runType = document.getElementById('run-type').value;
   const paceDecimal = totalSecs / 60 / dist;
   const entry = {
+    id: String(Date.now()),
     date: date,
     sessionType: 'run',
     sessionLabel: runType + ' · ' + dist + 'km',
@@ -131,7 +154,7 @@ export function saveRun() {
     completed: true,
   };
   S.history = [entry, ...S.history];
-  saveHistoryToStorage();
+  await saveSessionRecord(entry);
   document.getElementById('run-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('run-dist').value = '';
   document.getElementById('run-hh').value = '';

@@ -1,4 +1,5 @@
-import { S, setData, setNote, loadHistoryFromStorage, migrateOldData } from './state.js';
+import { S, setData, setNote, loadHistoryFromDB, loadDefaultUnit } from './state.js';
+import { openDB, migrateFromLocalStorage } from './db.js';
 import { toggleTimer, stopRest, updateTimerBtn } from './timer.js';
 import { render, updateProg, updateMiniBar, toggleExp, setTab } from './render.js';
 import {
@@ -10,20 +11,17 @@ import { initAudio, loadMuteState, toggleMute, isMuted } from './audio.js';
 
 let miniBarCooldown = false;
 
-function getStorageStats() {
+async function getStorageStats() {
   try {
-    let totalBytes = 0;
-    for (const key of Object.keys(localStorage)) {
-      totalBytes += (localStorage.getItem(key) || '').length * 2;
+    if (navigator.storage && navigator.storage.estimate) {
+      const { usage = 0, quota = 0 } = await navigator.storage.estimate();
+      const usedMB = (usage / (1024 * 1024)).toFixed(2);
+      const quotaMB = quota ? Math.round(quota / (1024 * 1024)) : null;
+      const pct = quota ? Math.min(100, Math.round(usage / quota * 100)) : 0;
+      return { usedMB, quotaMB, pct };
     }
-    const usedKB = (totalBytes / 1024).toFixed(1);
-    const usedMB = (totalBytes / (1024 * 1024)).toFixed(2);
-    const estimatedQuotaKB = 5120;
-    const pct = Math.min(100, Math.round(totalBytes / (estimatedQuotaKB * 1024) * 100));
-    return { usedKB, usedMB, pct };
-  } catch {
-    return { usedKB: '?', usedMB: '?', pct: 0 };
-  }
+  } catch {}
+  return { usedMB: '?', quotaMB: null, pct: 0 };
 }
 
 function openSettingsSheet() {
@@ -43,9 +41,15 @@ function openSettingsSheet() {
     navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' });
     setTimeout(() => navigator.serviceWorker.removeEventListener('message', onMsg), 1000);
   }
-  const stats = getStorageStats();
   const storageEl = document.getElementById('storage-usage');
-  if (storageEl) storageEl.textContent = stats.usedKB + ' KB used (~' + stats.pct + '% of 5 MB)';
+  if (storageEl) {
+    storageEl.textContent = '—';
+    getStorageStats().then(stats => {
+      storageEl.textContent = stats.quotaMB
+        ? stats.usedMB + ' MB used (~' + stats.pct + '% of ' + stats.quotaMB + ' MB)'
+        : stats.usedMB + ' MB used';
+    });
+  }
 }
 
 function closeSettingsSheet() {
@@ -124,9 +128,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   document.getElementById('date-disp').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   document.getElementById('run-date').value = new Date().toISOString().split('T')[0];
-  migrateOldData();
-  loadHistoryFromStorage();
-  loadMuteState();
+  await openDB();
+  await migrateFromLocalStorage();
+  await loadHistoryFromDB();
+  await loadDefaultUnit();
+  await loadMuteState();
   updateMuteBtn();
   render();
   updateProg();

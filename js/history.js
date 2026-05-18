@@ -1,4 +1,5 @@
-import { S, CAL, saveHistoryToStorage } from './state.js';
+import { S, CAL } from './state.js';
+import { putSession, normalizeSet } from './db.js';
 import { render, renderHist, renderCal } from './render.js';
 
 export function exportJSON() {
@@ -13,11 +14,31 @@ export function exportJSON() {
   URL.revokeObjectURL(url);
 }
 
+function normalizeImported(s, fallbackIndex) {
+  const out = { ...s };
+  if (!out.id) {
+    const base = out.date ? new Date(out.date + 'T12:00:00Z').getTime() : Date.now();
+    out.id = String((Number.isFinite(base) ? base : Date.now()) + fallbackIndex);
+  } else {
+    out.id = String(out.id);
+  }
+  if (out.sessionType !== 'run' && Array.isArray(out.exercises)) {
+    out.exercises = out.exercises.map(ex => {
+      if (!ex || typeof ex !== 'object') return ex;
+      if (Array.isArray(ex.sets)) {
+        return { ...ex, sets: ex.sets.map(x => normalizeSet(x, 'kg')) };
+      }
+      return ex;
+    });
+  }
+  return out;
+}
+
 export function loadHistory(ev) {
   const file = ev.target.files[0];
   if (!file) return;
   const r = new FileReader();
-  r.onload = e => {
+  r.onload = async e => {
     try {
       const d = JSON.parse(e.target.result);
 
@@ -44,14 +65,19 @@ export function loadHistory(ev) {
 
       const existing = new Map(S.history.map(s => [s.date + '|' + s.sessionType, s]));
       let imported = 0;
-      valid.forEach(s => {
+      for (let i = 0; i < valid.length; i++) {
+        const s = valid[i];
         const k = s.date + '|' + s.sessionType;
-        if (!existing.has(k)) { existing.set(k, s); imported++; }
-      });
+        if (!existing.has(k)) {
+          const norm = normalizeImported(s, i);
+          await putSession(norm);
+          existing.set(k, norm);
+          imported++;
+        }
+      }
 
       const merged = [...existing.values()].sort((a, b) => b.date.localeCompare(a.date));
       S.history = merged;
-      saveHistoryToStorage();
       if (S.view === 'history') renderHist();
       render();
 

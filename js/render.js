@@ -1,4 +1,4 @@
-import { S, CAL, getData, allExs } from './state.js';
+import { S, CAL, getData, allExs, countDoneSets } from './state.js';
 
 function findLastEntry(exId) {
   for (const sess of S.history) {
@@ -37,8 +37,8 @@ export function render() {
     div.innerHTML = `<div class="blk-div-line"></div><span class="blk-div-lbl">${blk.lbl}</span><div class="blk-div-line"></div>`;
     el.appendChild(div);
     blk.exs.forEach(ex => {
-      const arr = S.sets[ex.id] || Array(ex.sets).fill(false);
-      const done = arr.filter(Boolean).length;
+      const arr = S.sets[ex.id] || Array(ex.sets).fill(null);
+      const done = countDoneSets(arr);
       const allDone = done === ex.sets;
       const inProg = done > 0 && !allDone;
       const card = document.createElement('div');
@@ -70,7 +70,7 @@ export function render() {
         </div>
         ${lastTimeHtml}
         <div class="set-row">
-          ${arr.map((_, i) => `<button class="bubble${arr[i] ? ' on' : ''}" onclick="event.stopPropagation();toggleSet('${ex.id}',${i})" aria-label="Set ${i + 1}">${arr[i] ? '<i class="ti ti-check" aria-hidden="true"></i>' : (i + 1)}</button>`).join('')}
+          ${arr.map((_, i) => { const isDone = !!(arr[i] && arr[i].done); return `<button class="bubble${isDone ? ' on' : ''}" onclick="event.stopPropagation();toggleSet('${ex.id}',${i})" aria-label="Set ${i + 1}">${isDone ? '<i class="ti ti-check" aria-hidden="true"></i>' : (i + 1)}</button>`; }).join('')}
           <span class="set-count">${done}/${ex.sets}</span>
         </div>`;
       card.appendChild(hdr);
@@ -97,7 +97,7 @@ export function toggleExp(id) {
 export function updateProg() {
   const exs = allExs(S.sess);
   const tot = exs.reduce((s, e) => s + e.sets, 0);
-  const done = exs.reduce((s, e) => s + ((S.sets[e.id] || []).filter(Boolean).length), 0);
+  const done = exs.reduce((s, e) => s + countDoneSets(S.sets[e.id]), 0);
   const pct = tot > 0 ? Math.round(done / tot * 100) : 0;
   document.getElementById('prog-sets').textContent = done + ' / ' + tot;
   document.getElementById('prog-pct').textContent = pct + '%';
@@ -117,7 +117,7 @@ export function updateMiniBar() {
 
   const exs = allExs(S.sess);
   const tot = exs.reduce((sum, e) => sum + e.sets, 0);
-  const done = exs.reduce((sum, e) => sum + ((S.sets[e.id] || []).filter(Boolean).length), 0);
+  const done = exs.reduce((sum, e) => sum + countDoneSets(S.sets[e.id]), 0);
   const pct = tot > 0 ? Math.round(done / tot * 100) : 0;
   fillEl.style.width = pct + '%';
 
