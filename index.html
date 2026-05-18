@@ -232,6 +232,14 @@
   <button class="sheet-close-btn" onclick="closeSettingsSheet()">Close</button>
 </div>
 
+<div class="sheet-backdrop" id="ex-hist-backdrop" onclick="closeExHistory()"></div>
+<div class="run-sheet" id="ex-hist-sheet" role="dialog" aria-modal="true" aria-label="Exercise history">
+  <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+  <div class="sheet-title" id="ex-hist-title">Exercise history</div>
+  <div id="ex-hist-content" class="ex-hist-content"></div>
+  <button class="sheet-close-btn" onclick="closeExHistory()">Close</button>
+</div>
+
 <script type="module" src="js/app.js"></script>
 
 <style>

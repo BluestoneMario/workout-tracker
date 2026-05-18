@@ -1,6 +1,82 @@
-import { S, CAL } from './state.js';
+import { S, CAL, kgToDisplayValue, getDefaultUnit } from './state.js';
 import { putSession, normalizeSet } from './db.js';
-import { render, renderHist, renderCal } from './render.js';
+import { render, renderHist, renderCal, formatDate } from './render.js';
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatExHistoryRow(sess, exId, unit) {
+  const ex = (sess.exercises || []).find(e => e.id === exId);
+  if (!ex) return null;
+  const doneSets = Array.isArray(ex.sets) ? ex.sets.filter(s => s && s.done) : [];
+  if (doneSets.length === 0) return null;
+  const repsVals = doneSets.map(s => s.reps).filter(r => r != null);
+  const hasReps = repsVals.length > 0;
+  const weights = doneSets.map(s => s.weight != null ? s.weight : null);
+  const hasWeight = weights.some(w => w != null);
+  let summary;
+  if (!hasReps) {
+    summary = doneSets.length + ' set' + (doneSets.length !== 1 ? 's' : '');
+  } else {
+    const repsList = repsVals.map(r => '×' + r).join(', ');
+    if (hasWeight) {
+      const uniq = [...new Set(weights.filter(w => w != null))];
+      const weightStr = uniq.length === 1
+        ? kgToDisplayValue(uniq[0], unit) + ' ' + unit
+        : weights.map(w => w != null ? kgToDisplayValue(w, unit) : '—').join(' / ') + ' ' + unit;
+      summary = repsList + ' @ ' + weightStr;
+    } else {
+      summary = repsList;
+    }
+  }
+  const rawNote = ex.notes || '';
+  const note = rawNote.length > 60 ? rawNote.slice(0, 60) + '…' : rawNote;
+  const noteHtml = note ? `<div class="ex-hist-note">${escapeHtml(note)}</div>` : '';
+  return `<div class="ex-hist-row">
+    <div class="ex-hist-row-top">
+      <span class="ex-hist-date">${formatDate(sess.date)}</span>
+      <span class="ex-hist-summary">${escapeHtml(summary)}</span>
+    </div>
+    ${noteHtml}
+  </div>`;
+}
+
+export function openExHistory(exId, exName) {
+  const unit = getDefaultUnit();
+  const entries = S.history
+    .filter(s => s.sessionType !== 'run' && Array.isArray(s.exercises)
+      && s.exercises.some(e => e && e.id === exId && Array.isArray(e.sets) && e.sets.some(x => x && x.done)))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .slice(0, 20);
+  const titleEl = document.getElementById('ex-hist-title');
+  const contentEl = document.getElementById('ex-hist-content');
+  if (titleEl) titleEl.textContent = exName || 'Exercise history';
+  if (contentEl) {
+    if (entries.length === 0) {
+      contentEl.innerHTML = '<div class="ex-hist-empty">No history yet for this exercise</div>';
+    } else {
+      contentEl.innerHTML = entries
+        .map(s => formatExHistoryRow(s, exId, unit))
+        .filter(Boolean)
+        .join('');
+    }
+  }
+  document.getElementById('ex-hist-backdrop').classList.add('open');
+  document.getElementById('ex-hist-sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+export function closeExHistory() {
+  document.getElementById('ex-hist-backdrop').classList.remove('open');
+  document.getElementById('ex-hist-sheet').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
 export function exportJSON() {
   const blob = new Blob([JSON.stringify({ version: 1, sessions: S.history }, null, 2)], { type: 'application/json' });

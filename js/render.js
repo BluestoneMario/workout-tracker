@@ -31,7 +31,7 @@ function formatLastSummary(entry, unit) {
   return repsList;
 }
 
-function formatDate(iso) {
+export function formatDate(iso) {
   const d = new Date(iso + 'T00:00:00');
   return d.getDate() + ' ' + d.toLocaleDateString('en-GB', { month: 'short' });
 }
@@ -143,11 +143,13 @@ export function render() {
       if (S.exp[ex.id]) {
         const body = document.createElement('div');
         body.className = 'card-body';
+        const safeName = String(ex.name).replace(/'/g, "\\'");
         body.innerHTML = `
           ${ex.warn ? `<div class="warn-pill"><i class="ti ti-alert-triangle" aria-hidden="true"></i>${ex.warn}</div>` : ''}
           <div class="tip-box">${ex.tip}</div>
           <a class="ill-link" href="${ex.url}" target="_blank" rel="noopener"><i class="ti ti-external-link" aria-hidden="true"></i><span>Illustration &amp; instructions</span></a>
-          <textarea class="ex-textarea" rows="2" placeholder="Notes — variation used, how it felt, any weight..." oninput="setNote('${ex.id}',this.value)">${S.notes[ex.id] || ''}</textarea>`;
+          <textarea class="ex-textarea" rows="2" placeholder="Notes — variation used, how it felt, any weight..." oninput="setNote('${ex.id}',this.value)">${S.notes[ex.id] || ''}</textarea>
+          <a class="ill-link" href="#" onclick="event.preventDefault();event.stopPropagation();openExHistory('${ex.id}','${safeName}')"><i class="ti ti-history" aria-hidden="true"></i><span>History</span></a>`;
         card.appendChild(body);
       }
       el.appendChild(card);
