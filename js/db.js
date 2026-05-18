@@ -161,16 +161,27 @@ export async function putSetting(key, value) {
 
 export function normalizeSet(s, defaultUnit) {
   const u = defaultUnit || DEFAULT_UNIT;
-  if (s === true) return { done: true, weight: null, unit: u };
-  if (s === false || s == null) return { done: false, weight: null, unit: u };
+  if (s === true) return { done: true, reps: null, weight: null, weightUnit: u };
+  if (s === false || s == null) return { done: false, reps: null, weight: null, weightUnit: u };
   if (typeof s === 'object') {
     return {
       done: !!s.done,
+      reps: (s.reps == null ? null : s.reps),
       weight: (s.weight === undefined ? null : s.weight),
-      unit: s.unit || u,
+      weightUnit: s.weightUnit || s.unit || u,
     };
   }
-  return { done: false, weight: null, unit: u };
+  return { done: false, reps: null, weight: null, weightUnit: u };
+}
+
+const LAST_WEIGHT_PREFIX = 'last_weight:';
+
+export async function getLastWeight(exId) {
+  return await getSetting(LAST_WEIGHT_PREFIX + exId);
+}
+
+export async function putLastWeight(exId, kg) {
+  return await putSetting(LAST_WEIGHT_PREFIX + exId, kg);
 }
 
 function normalizeSessionRecord(rec, defaultUnit, fallbackIndex) {

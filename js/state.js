@@ -1,4 +1,4 @@
-import { getAllSessions, putSession, deleteSession, getSetting, putSetting } from './db.js';
+import { getAllSessions, putSession, deleteSession, getSetting, putSetting, getLastWeight, putLastWeight } from './db.js';
 
 export const ACCENT = { A: '#5a8cd6', B: '#d49355' };
 
@@ -16,7 +16,9 @@ export const S = {
   history: [],
   timerState: 'idle',
   accumulatedMs: 0,
-  weightPrompt: null,
+  repsPrompt: null,
+  editPopover: null,
+  cardWeights: {},
 };
 
 export const KG_TO_LB = 2.20462;
@@ -34,15 +36,34 @@ export function inputValueToKg(value, unit) {
   return unit === 'lb' ? v / KG_TO_LB : v;
 }
 
-export function findLastWeightForSet(exId, setIdx) {
-  for (const sess of S.history) {
-    if (sess.sessionType === 'run') continue;
-    const ex = (sess.exercises || []).find(e => e.id === exId);
-    if (!ex || !Array.isArray(ex.sets)) continue;
-    const rec = ex.sets[setIdx];
-    if (rec && rec.weight != null) return rec.weight;
+export function parseTargetReps(repsString) {
+  if (typeof repsString !== 'string') return null;
+  const m = repsString.match(/\d+/);
+  return m ? parseInt(m[0], 10) : null;
+}
+
+export async function loadCardWeights() {
+  S.cardWeights = {};
+  const data = getData();
+  if (!data) return;
+  for (const sessKey of Object.keys(data)) {
+    for (const blk of data[sessKey].blocks) {
+      for (const ex of blk.exs) {
+        if (!ex.weighted) continue;
+        const kg = await getLastWeight(ex.id);
+        if (kg != null) S.cardWeights[ex.id] = kg;
+      }
+    }
   }
-  return null;
+}
+
+export async function setCardWeight(exId, kg) {
+  if (kg == null) {
+    delete S.cardWeights[exId];
+  } else {
+    S.cardWeights[exId] = kg;
+  }
+  await putLastWeight(exId, kg);
 }
 
 export const CAL = { year: new Date().getFullYear(), month: new Date().getMonth() };

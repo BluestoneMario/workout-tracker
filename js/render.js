@@ -1,4 +1,4 @@
-import { S, CAL, getData, allExs, countDoneSets, kgToDisplayValue, findLastWeightForSet, getDefaultUnit } from './state.js';
+import { S, CAL, getData, allExs, countDoneSets, kgToDisplayValue, getDefaultUnit, parseTargetReps } from './state.js';
 
 function findLastEntry(exId) {
   for (const sess of S.history) {
@@ -60,11 +60,22 @@ export function render() {
       const bubblesHtml = arr.map((_, i) => {
         const cur = arr[i];
         const isDone = !!(cur && cur.done);
-        const wLabel = (cur && cur.done && cur.weight != null)
-          ? `<span class="bubble-weight">${kgToDisplayValue(cur.weight, unit)}${unit}</span>`
+        const repLbl = (isDone && cur.reps != null)
+          ? `<span class="bubble-reps">×${cur.reps}</span>`
           : '';
-        return `<div class="bubble-wrap"><button class="bubble${isDone ? ' on' : ''}" onclick="event.stopPropagation();toggleSet('${ex.id}',${i})" aria-label="Set ${i + 1}">${isDone ? '<i class="ti ti-check" aria-hidden="true"></i>' : (i + 1)}</button>${wLabel}</div>`;
+        return `<div class="bubble-wrap"><button class="bubble${isDone ? ' on' : ''}" onclick="event.stopPropagation();toggleSet('${ex.id}',${i})" aria-label="Set ${i + 1}">${isDone ? '<i class="ti ti-check" aria-hidden="true"></i>' : (i + 1)}</button>${repLbl}</div>`;
       }).join('');
+      const weightInputHtml = ex.weighted ? (() => {
+        const kg = S.cardWeights[ex.id];
+        const val = kg != null ? kgToDisplayValue(kg, unit) : '';
+        return `<div class="ex-weight-row" onclick="event.stopPropagation()">
+          <label class="ex-weight-lbl" for="ex-weight-${ex.id}">Weight</label>
+          <div class="ex-weight-grp">
+            <input id="ex-weight-${ex.id}" class="ex-weight-input" type="number" step="0.5" min="0" inputmode="decimal" placeholder="${unit}" value="${val}" onchange="onCardWeightChange('${ex.id}', this.value)">
+            <span class="ex-weight-unit">${unit}</span>
+          </div>
+        </div>`;
+      })() : '';
       hdr.innerHTML = `
         <div class="card-hdr-top">
           <div class="ex-title-wrap">
@@ -78,31 +89,29 @@ export function render() {
           <i class="ti ti-chevron-${S.exp[ex.id] ? 'up' : 'down'} ex-chev" aria-hidden="true"></i>
         </div>
         ${lastTimeHtml}
+        ${weightInputHtml}
         <div class="set-row">
           ${bubblesHtml}
           <span class="set-count">${done}/${ex.sets}</span>
         </div>`;
       card.appendChild(hdr);
 
-      if (S.weightPrompt && S.weightPrompt.exId === ex.id) {
-        const setIdx = S.weightPrompt.setIdx;
-        const prior = findLastWeightForSet(ex.id, setIdx);
-        const prefill = prior != null ? kgToDisplayValue(prior, unit) : '';
-        const wRow = document.createElement('form');
-        wRow.className = 'weight-input-row';
-        wRow.onclick = (e) => e.stopPropagation();
-        wRow.onsubmit = (e) => { e.preventDefault(); confirmWeight(); };
-        wRow.innerHTML = `
-          <label class="weight-input-lbl">Set ${setIdx + 1} weight</label>
-          <div class="weight-input-grp">
-            <input id="weight-input-active" class="weight-input" type="number" step="0.5" min="0" inputmode="decimal" enterkeyhint="done" placeholder="${unit}" value="${prefill}">
-            <span class="weight-input-unit">${unit}</span>
-          </div>
-          <div class="weight-input-actions">
-            <button type="button" class="weight-skip-btn" onclick="skipWeight()">Skip</button>
-            <button type="submit" class="weight-done-btn">Done</button>
+      if (S.repsPrompt && S.repsPrompt.exId === ex.id) {
+        const setIdx = S.repsPrompt.setIdx;
+        const prefill = S.repsPrompt.prefill;
+        const valAttr = prefill != null ? `value="${prefill}"` : '';
+        const rRow = document.createElement('form');
+        rRow.className = 'reps-input-row';
+        rRow.onclick = (e) => e.stopPropagation();
+        rRow.onsubmit = (e) => { e.preventDefault(); confirmReps(); };
+        rRow.innerHTML = `
+          <label class="reps-input-lbl" for="reps-input-active">Set ${setIdx + 1} · Reps</label>
+          <input id="reps-input-active" class="reps-input" type="number" min="0" inputmode="numeric" enterkeyhint="done" ${valAttr} placeholder="${prefill ?? ''}">
+          <div class="reps-input-actions">
+            <button type="button" class="reps-skip-btn" onclick="skipReps()" aria-label="Skip"><i class="ti ti-x" aria-hidden="true"></i></button>
+            <button type="submit" class="reps-done-btn" aria-label="Confirm"><i class="ti ti-check" aria-hidden="true"></i></button>
           </div>`;
-        card.appendChild(wRow);
+        card.appendChild(rRow);
       }
       if (S.exp[ex.id]) {
         const body = document.createElement('div');
@@ -118,12 +127,61 @@ export function render() {
     });
   });
 
-  if (S.weightPrompt) {
+  renderEditPopover();
+
+  if (S.repsPrompt) {
     requestAnimationFrame(() => {
-      const inp = document.getElementById('weight-input-active');
+      const inp = document.getElementById('reps-input-active');
       if (inp) { inp.focus(); inp.select(); }
     });
   }
+}
+
+function renderEditPopover() {
+  const back = document.getElementById('edit-backdrop');
+  const pop = document.getElementById('edit-popover');
+  if (!back || !pop) return;
+  if (!S.editPopover) {
+    back.classList.remove('open');
+    pop.classList.remove('open');
+    pop.innerHTML = '';
+    return;
+  }
+  const { exId, setIdx } = S.editPopover;
+  const ex = allExs(S.sess).find(e => e.id === exId);
+  const arr = S.sets[exId] || [];
+  const cur = arr[setIdx] || {};
+  const unit = getDefaultUnit();
+  const repsVal = cur.reps != null ? cur.reps : (parseTargetReps(ex && ex.reps) ?? '');
+  const weightVal = (ex && ex.weighted && cur.weight != null) ? kgToDisplayValue(cur.weight, unit) : '';
+  const weightFieldHtml = (ex && ex.weighted) ? `
+    <div class="edit-field">
+      <label class="edit-field-lbl" for="edit-weight-input">Weight</label>
+      <div class="edit-input-grp">
+        <input id="edit-weight-input" class="edit-input" type="number" step="0.5" min="0" inputmode="decimal" placeholder="${unit}" value="${weightVal}">
+        <span class="edit-input-unit">${unit}</span>
+      </div>
+    </div>` : '';
+  pop.innerHTML = `
+    <div class="sheet-handle-wrap"><div class="sheet-handle"></div></div>
+    <div class="sheet-title">Edit set ${setIdx + 1} · ${ex ? ex.name : ''}</div>
+    <div class="edit-form">
+      <div class="edit-field">
+        <label class="edit-field-lbl" for="edit-reps-input">Reps</label>
+        <input id="edit-reps-input" class="edit-input" type="number" min="0" inputmode="numeric" placeholder="reps" value="${repsVal}">
+      </div>
+      ${weightFieldHtml}
+      <div class="edit-actions">
+        <button type="button" class="edit-unmark-btn" onclick="deleteSetFromEdit()"><i class="ti ti-square" aria-hidden="true"></i><span>Unmark</span></button>
+        <button type="button" class="edit-save-btn" onclick="saveEdit()"><i class="ti ti-check" aria-hidden="true"></i><span>Save</span></button>
+      </div>
+    </div>`;
+  back.classList.add('open');
+  pop.classList.add('open');
+  requestAnimationFrame(() => {
+    const inp = document.getElementById('edit-reps-input');
+    if (inp) { inp.focus(); inp.select(); }
+  });
 }
 
 export function toggleExp(id) {
@@ -244,13 +302,25 @@ export function renderHist() {
     const unit = getDefaultUnit();
     const lines = (s.exercises || []).flatMap(e => {
       const out = [];
-      if (Array.isArray(e.sets) && e.sets.some(x => x && x.weight != null)) {
-        const doneCount = e.sets.filter(x => x && x.done).length;
-        const weights = e.sets
-          .filter(x => x && x.done && x.weight != null)
-          .map(x => kgToDisplayValue(x.weight, unit))
-          .join(' / ');
-        out.push(`<div class="hist-note"><b>${e.name}:</b> ${doneCount} set${doneCount !== 1 ? 's' : ''} — ${weights} ${unit}</div>`);
+      const doneSets = Array.isArray(e.sets) ? e.sets.filter(x => x && x.done) : [];
+      const hasReps = doneSets.some(x => x.reps != null);
+      const hasWeight = doneSets.some(x => x.weight != null);
+      if (doneSets.length > 0 && (hasReps || hasWeight)) {
+        const doneCount = doneSets.length;
+        const repsList = doneSets.map(x => x.reps != null ? '×' + x.reps : '×?').join(', ');
+        let weightSuffix = '';
+        if (hasWeight) {
+          const weights = doneSets.map(x => x.weight != null ? x.weight : null);
+          const uniq = [...new Set(weights.filter(w => w != null))];
+          if (uniq.length === 1) {
+            weightSuffix = ' @ ' + kgToDisplayValue(uniq[0], unit) + ' ' + unit;
+          } else {
+            const perSet = weights.map(w => w != null ? kgToDisplayValue(w, unit) : '—').join(' / ');
+            weightSuffix = ' @ ' + perSet + ' ' + unit;
+          }
+        }
+        const repsPart = hasReps ? ' — ' + repsList : '';
+        out.push(`<div class="hist-note"><b>${e.name}:</b> ${doneCount} set${doneCount !== 1 ? 's' : ''}${repsPart}${weightSuffix}</div>`);
       }
       if (e.notes) {
         out.push(`<div class="hist-note"><b>${e.name}:</b> ${e.notes}</div>`);

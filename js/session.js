@@ -1,4 +1,4 @@
-import { S, ACCENT, allExs, getData, saveSessionRecord, getDefaultUnit, inputValueToKg } from './state.js';
+import { S, ACCENT, allExs, getData, saveSessionRecord, getDefaultUnit, inputValueToKg, parseTargetReps, setCardWeight } from './state.js';
 import { startEl, startRest, resetTimer, updateTimerBtn } from './timer.js';
 import { render, updateProg, updateMiniBar, showCompletion } from './render.js';
 
@@ -9,7 +9,8 @@ export function switchSession(k) {
   S.sets = {};
   S.notes = {};
   S.exp = {};
-  S.weightPrompt = null;
+  S.repsPrompt = null;
+  S.editPopover = null;
   S.wStart = null;
   S.elapsed = 0;
   S.timerState = 'idle';
@@ -25,48 +26,135 @@ export function switchSession(k) {
   updateMiniBar();
 }
 
+function commitPendingReps() {
+  if (!S.repsPrompt) return;
+  const { exId, setIdx, prefill } = S.repsPrompt;
+  const entered = readRepsInput('reps-input-active');
+  const reps = entered != null ? entered : prefill;
+  applyRepsToSet(exId, setIdx, reps);
+  S.repsPrompt = null;
+}
+
 export function toggleSet(id, i) {
   const ex = allExs(S.sess).find(e => e.id === id);
   const arr = S.sets[id] || Array(ex.sets).fill(null);
   const cur = arr[i];
   const wasDone = !!(cur && cur.done);
-  const upd = [...arr];
-  upd[i] = cur
-    ? { ...cur, done: !wasDone }
-    : { done: true, weight: null, unit: 'kg' };
-  S.sets[id] = upd;
-  if (!wasDone) {
-    if (S.timerState === 'idle') startEl();
-    const restDur = ex.rest === 0 ? 0 : (ex.rest != null ? ex.rest : 90);
-    if (restDur > 0) startRest(restDur);
-    S.weightPrompt = { exId: id, setIdx: i };
-  } else if (S.weightPrompt && S.weightPrompt.exId === id && S.weightPrompt.setIdx === i) {
-    S.weightPrompt = null;
+  commitPendingReps();
+  if (wasDone) {
+    S.editPopover = { exId: id, setIdx: i };
+    render();
+    return;
   }
+  const unit = getDefaultUnit();
+  const weight = ex.weighted ? (S.cardWeights[id] ?? null) : null;
+  const upd = [...arr];
+  upd[i] = {
+    done: true,
+    reps: null,
+    weight,
+    weightUnit: unit,
+  };
+  S.sets[id] = upd;
+  if (S.timerState === 'idle') startEl();
+  const restDur = ex.rest === 0 ? 0 : (ex.rest != null ? ex.rest : 90);
+  if (restDur > 0) startRest(restDur);
+  S.repsPrompt = { exId: id, setIdx: i, prefill: parseTargetReps(ex.reps) };
+  S.editPopover = null;
   render();
   updateProg();
 }
 
-export function confirmWeight() {
-  if (!S.weightPrompt) return;
-  const { exId, setIdx } = S.weightPrompt;
-  const input = document.getElementById('weight-input-active');
-  const raw = input ? input.value : '';
-  const kg = inputValueToKg(raw, getDefaultUnit());
+function readRepsInput(elId) {
+  const input = document.getElementById(elId);
+  if (!input) return null;
+  const v = parseInt(input.value, 10);
+  return Number.isFinite(v) && v > 0 ? v : null;
+}
+
+function applyRepsToSet(exId, setIdx, reps) {
   const arr = S.sets[exId];
-  if (Array.isArray(arr) && arr[setIdx]) {
-    const next = [...arr];
-    next[setIdx] = { ...arr[setIdx], weight: kg };
-    S.sets[exId] = next;
-  }
-  S.weightPrompt = null;
+  if (!Array.isArray(arr) || !arr[setIdx]) return;
+  const next = [...arr];
+  next[setIdx] = { ...arr[setIdx], reps };
+  S.sets[exId] = next;
+}
+
+export function confirmReps() {
+  if (!S.repsPrompt) return;
+  const { exId, setIdx, prefill } = S.repsPrompt;
+  const entered = readRepsInput('reps-input-active');
+  const reps = entered != null ? entered : prefill;
+  applyRepsToSet(exId, setIdx, reps);
+  S.repsPrompt = null;
   render();
 }
 
-export function skipWeight() {
-  if (!S.weightPrompt) return;
-  S.weightPrompt = null;
+export function skipReps() {
+  if (!S.repsPrompt) return;
+  const { exId, setIdx, prefill } = S.repsPrompt;
+  applyRepsToSet(exId, setIdx, prefill);
+  S.repsPrompt = null;
   render();
+}
+
+export async function onCardWeightChange(exId, rawValue) {
+  const kg = inputValueToKg(rawValue, getDefaultUnit());
+  await setCardWeight(exId, kg);
+}
+
+export function openEdit(exId, setIdx) {
+  S.editPopover = { exId, setIdx };
+  S.repsPrompt = null;
+  render();
+}
+
+export function closeEdit() {
+  S.editPopover = null;
+  render();
+}
+
+export function saveEdit() {
+  if (!S.editPopover) return;
+  const { exId, setIdx } = S.editPopover;
+  const arr = S.sets[exId];
+  if (!Array.isArray(arr) || !arr[setIdx]) {
+    S.editPopover = null;
+    render();
+    return;
+  }
+  const ex = allExs(S.sess).find(e => e.id === exId);
+  const repsRaw = readRepsInput('edit-reps-input');
+  const reps = repsRaw != null ? repsRaw : (arr[setIdx].reps ?? parseTargetReps(ex.reps));
+  let weight = arr[setIdx].weight;
+  let weightUnit = arr[setIdx].weightUnit || getDefaultUnit();
+  if (ex.weighted) {
+    const wInput = document.getElementById('edit-weight-input');
+    if (wInput) {
+      const kg = inputValueToKg(wInput.value, getDefaultUnit());
+      weight = kg;
+      weightUnit = getDefaultUnit();
+    }
+  }
+  const next = [...arr];
+  next[setIdx] = { ...arr[setIdx], reps, weight, weightUnit };
+  S.sets[exId] = next;
+  S.editPopover = null;
+  render();
+}
+
+export function deleteSetFromEdit() {
+  if (!S.editPopover) return;
+  const { exId, setIdx } = S.editPopover;
+  const arr = S.sets[exId];
+  if (Array.isArray(arr) && arr[setIdx]) {
+    const next = [...arr];
+    next[setIdx] = { done: false, reps: null, weight: null, weightUnit: getDefaultUnit() };
+    S.sets[exId] = next;
+  }
+  S.editPopover = null;
+  render();
+  updateProg();
 }
 
 export async function saveSession() {
@@ -76,13 +164,18 @@ export async function saveSession() {
     const arr = S.sets[e.id] || [];
     const sets = Array.from({ length: e.sets }, (_, i) => {
       const cur = arr[i];
-      return cur
-        ? { done: !!cur.done, weight: cur.weight ?? null, unit: 'kg' }
-        : { done: false, weight: null, unit: 'kg' };
+      if (!cur) return { done: false, reps: null, weight: null, weightUnit: getDefaultUnit() };
+      return {
+        done: !!cur.done,
+        reps: cur.reps ?? null,
+        weight: cur.weight ?? null,
+        weightUnit: cur.weightUnit || getDefaultUnit(),
+      };
     });
     return {
       id: e.id,
       name: e.name,
+      weighted: !!e.weighted,
       setsCompleted: sets.filter(s => s.done).length,
       totalSets: e.sets,
       notes: S.notes[e.id] || '',
@@ -111,7 +204,8 @@ export function dismissCompletion() {
   S.sets = {};
   S.notes = {};
   S.exp = {};
-  S.weightPrompt = null;
+  S.repsPrompt = null;
+  S.editPopover = null;
   S.wStart = null;
   S.elapsed = 0;
   S.timerState = 'idle';

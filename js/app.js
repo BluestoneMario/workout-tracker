@@ -1,11 +1,12 @@
-import { S, setData, setNote, loadHistoryFromDB, loadDefaultUnit, setDefaultUnit, getDefaultUnit } from './state.js';
+import { S, setData, setNote, loadHistoryFromDB, loadDefaultUnit, setDefaultUnit, getDefaultUnit, loadCardWeights } from './state.js';
 import { openDB, migrateFromLocalStorage } from './db.js';
 import { toggleTimer, stopRest, updateTimerBtn } from './timer.js';
 import { render, updateProg, updateMiniBar, toggleExp, setTab, renderHist } from './render.js';
 import {
   switchSession, toggleSet, saveSession, saveRun,
   dismissCompletion, updatePace, openRunSheet, closeRunSheet,
-  confirmWeight, skipWeight,
+  confirmReps, skipReps, onCardWeightChange,
+  openEdit, closeEdit, saveEdit, deleteSetFromEdit,
 } from './session.js';
 import { exportJSON, loadHistory, calPrev, calNext } from './history.js';
 import { initAudio, loadMuteState, toggleMute, isMuted } from './audio.js';
@@ -80,8 +81,13 @@ window.calPrev = calPrev;
 window.calNext = calNext;
 window.loadHistory = loadHistory;
 window.setNote = setNote;
-window.confirmWeight = confirmWeight;
-window.skipWeight = skipWeight;
+window.confirmReps = confirmReps;
+window.skipReps = skipReps;
+window.onCardWeightChange = onCardWeightChange;
+window.openEdit = openEdit;
+window.closeEdit = closeEdit;
+window.saveEdit = saveEdit;
+window.deleteSetFromEdit = deleteSetFromEdit;
 
 function updateUnitToggleUI() {
   const u = getDefaultUnit();
@@ -131,6 +137,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await migrateFromLocalStorage();
   await loadHistoryFromDB();
   await loadDefaultUnit();
+  await loadCardWeights();
   await loadMuteState();
   updateMuteBtn();
   render();
@@ -142,10 +149,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('touchstart', onFirstGesture, { capture: true, passive: true });
 
   document.addEventListener('click', (e) => {
-    if (!S.weightPrompt) return;
-    if (e.target.closest('.weight-input-row')) return;
+    if (!S.repsPrompt) return;
+    if (e.target.closest('.reps-input-row')) return;
     if (e.target.closest('.bubble')) return;
-    skipWeight();
+    if (e.target.closest('.edit-popover')) return;
+    skipReps();
   }, true);
 
   (function positionMiniBar() {
