@@ -1,4 +1,4 @@
-import { S, CAL, kgToDisplayValue, getDefaultUnit } from './state.js';
+import { S, CAL, kgToDisplayValue, getDefaultUnit, deleteSessionRecord } from './state.js';
 import { putSession, normalizeSet } from './db.js';
 import { render, renderHist, renderCal, formatDate } from './render.js';
 
@@ -110,6 +110,37 @@ function normalizeImported(s, fallbackIndex) {
   return out;
 }
 
+function showToast(message, isError = false) {
+  const existing = document.getElementById('app-toast-history');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'app-toast-history';
+  t.setAttribute('role', isError ? 'alert' : 'status');
+  t.textContent = message;
+  Object.assign(t.style, {
+    position: 'fixed',
+    left: '12px',
+    right: '12px',
+    bottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+    zIndex: '9000',
+    padding: '12px 14px',
+    background: isError ? '#3b1e1e' : 'var(--color-background-secondary, #1f1f24)',
+    border: '1px solid ' + (isError ? '#ef4444' : 'var(--color-border-tertiary, #222227)'),
+    color: isError ? '#fef2f2' : 'var(--color-text-primary, #f1f1f3)',
+    borderRadius: '12px',
+    fontFamily: 'var(--mono, monospace)',
+    fontSize: '13px',
+    fontWeight: '500',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+    maxWidth: '480px',
+    margin: '0 auto',
+    transition: 'opacity 0.3s',
+  });
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; }, 3700);
+  setTimeout(() => { t.remove(); }, 4000);
+}
+
 export function loadHistory(ev) {
   const file = ev.target.files[0];
   if (!file) return;
@@ -119,7 +150,7 @@ export function loadHistory(ev) {
       const d = JSON.parse(e.target.result);
 
       if (!d || !Array.isArray(d.sessions)) {
-        alert('Invalid file: expected a training history export with a "sessions" array.');
+        showToast('Invalid file: expected a training history export with a "sessions" array.', true);
         return;
       }
 
@@ -135,7 +166,7 @@ export function loadHistory(ev) {
       const skipped = d.sessions.length - valid.length;
 
       if (valid.length === 0) {
-        alert('No valid sessions found in this file. The file may be empty or incorrectly formatted.');
+        showToast('No valid sessions found in this file. The file may be empty or incorrectly formatted.', true);
         return;
       }
 
@@ -160,14 +191,22 @@ export function loadHistory(ev) {
       const msg = imported > 0
         ? `Imported ${imported} session${imported !== 1 ? 's' : ''}${skipped > 0 ? ` (${skipped} invalid entries skipped)` : ''}.`
         : `No new sessions to import${skipped > 0 ? ` (${skipped} invalid entries skipped)` : ''}.`;
-      alert(msg);
+      showToast(msg, false);
 
     } catch {
-      alert('Could not read file. Make sure this is a valid training history JSON export.');
+      showToast('Could not read file. Make sure this is a valid training history JSON export.', true);
     }
   };
   r.readAsText(file);
   ev.target.value = '';
+}
+
+export async function deleteHistorySession(id) {
+  if (!confirm("Delete this session? This can't be undone.")) return;
+  await deleteSessionRecord(id);
+  const idx = S.history.findIndex(s => s.id === id);
+  if (idx !== -1) S.history.splice(idx, 1);
+  renderHist();
 }
 
 export function calPrev() {

@@ -1127,6 +1127,32 @@ html {
   color:var(--color-text-primary, #f1f1f3);
 }
 
+.hist-card-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+.hist-delete-btn{
+  background:transparent;
+  border:none;
+  color:var(--color-text-tertiary, #6a6a71);
+  padding:4px;
+  cursor:pointer;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:color 0.15s, background 0.15s;
+}
+.hist-delete-btn:hover,
+.hist-delete-btn:focus-visible{
+  color:var(--danger, #EF4444);
+  background:color-mix(in srgb, var(--danger) 10%, transparent);
+  outline:none;
+}
+.hist-delete-btn i{font-size:16px;}
+
 .badge{
   font-family:var(--mono);
   font-size:10px;

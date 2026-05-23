@@ -321,7 +321,10 @@ export function renderHist() {
             <div class="hist-label">${s.sessionLabel}</div>
             <div class="hist-meta">${s.date} · ${dur} · ${pace}</div>
           </div>
-          <span class="badge bg-g">Complete</span>
+          <div class="hist-card-actions">
+            <span class="badge bg-g">Complete</span>
+            <button class="hist-delete-btn" onclick="deleteHistorySession('${s.id}')" aria-label="Delete session"><i class="ti ti-trash" aria-hidden="true"></i></button>
+          </div>
         </div>
         ${noteHtml}
       </div>`;
@@ -362,7 +365,10 @@ export function renderHist() {
           <div class="hist-label">${s.sessionLabel}</div>
           <div class="hist-meta">${s.date} · ${dur} · ${s.totalSetsCompleted}/${s.totalSets} sets</div>
         </div>
-        <span class="badge ${s.completed ? 'bg-g' : 'bg-a'}">${s.completed ? 'Complete' : pct + '%'}</span>
+        <div class="hist-card-actions">
+          <span class="badge ${s.completed ? 'bg-g' : 'bg-a'}">${s.completed ? 'Complete' : pct + '%'}</span>
+          <button class="hist-delete-btn" onclick="deleteHistorySession('${s.id}')" aria-label="Delete session"><i class="ti ti-trash" aria-hidden="true"></i></button>
+        </div>
       </div>
       <div class="hist-bar">
         <div class="hist-bar-fill" style="background:${s.completed ? '#22C55E' : '#F59E0B'};width:${pct}%;"></div>

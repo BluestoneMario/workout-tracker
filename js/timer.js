@@ -18,6 +18,11 @@ export function startEl() {
     td.textContent = m + ':' + s;
     updateMiniBar();
   }, 1000);
+  if (S.restPausedSecs > 0) {
+    const resume = S.restPausedSecs;
+    S.restPausedSecs = 0;
+    startRest(resume);
+  }
   updateTimerBtn();
 }
 
@@ -27,6 +32,7 @@ export function pauseEl() {
   S.timerState = 'paused';
   clearInterval(elInt);
   if (S.restSecs > 0) {
+    S.restPausedSecs = Math.max(0, Math.ceil((S.restEndAt - Date.now()) / 1000));
     clearInterval(restInt);
     document.getElementById('rest-row').style.display = 'none';
   }
@@ -69,6 +75,7 @@ function updRest() {
 export function stopRest() {
   clearInterval(restInt);
   S.restSecs = 0;
+  S.restPausedSecs = 0;
   document.getElementById('rest-row').style.display = 'none';
   updateMiniBar();
 }

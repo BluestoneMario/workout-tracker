@@ -13,6 +13,7 @@ export const S = {
   restSecs: 0,
   restDuration: 90,
   restEndAt: 0,
+  restPausedSecs: 0,
   history: [],
   timerState: 'idle',
   accumulatedMs: 0,

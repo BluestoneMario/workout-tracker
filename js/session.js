@@ -15,6 +15,7 @@ export function switchSession(k) {
   S.elapsed = 0;
   S.timerState = 'idle';
   S.accumulatedMs = 0;
+  S.restPausedSecs = 0;
   resetTimer();
   document.getElementById('tab-A').className = 'sess-tab' + (k === 'A' ? ' on-a' : '');
   document.getElementById('tab-B').className = 'sess-tab' + (k === 'B' ? ' on-b' : '');
@@ -210,6 +211,7 @@ export function dismissCompletion() {
   S.elapsed = 0;
   S.timerState = 'idle';
   S.accumulatedMs = 0;
+  S.restPausedSecs = 0;
   resetTimer();
   render();
   updateProg();

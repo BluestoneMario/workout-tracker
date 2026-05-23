@@ -8,7 +8,7 @@ import {
   confirmReps, skipReps, onCardWeightChange,
   openEdit, closeEdit, saveEdit, deleteSetFromEdit,
 } from './session.js';
-import { exportJSON, loadHistory, calPrev, calNext, openExHistory, closeExHistory } from './history.js';
+import { exportJSON, loadHistory, calPrev, calNext, openExHistory, closeExHistory, deleteHistorySession } from './history.js';
 import { initAudio, loadMuteState, toggleMute, isMuted } from './audio.js';
 
 let miniBarCooldown = false;
@@ -90,6 +90,7 @@ window.saveEdit = saveEdit;
 window.deleteSetFromEdit = deleteSetFromEdit;
 window.openExHistory = openExHistory;
 window.closeExHistory = closeExHistory;
+window.deleteHistorySession = deleteHistorySession;
 
 function updateUnitToggleUI() {
   const u = getDefaultUnit();
