@@ -97,16 +97,15 @@
             "warn": "Replaces band overhead press (bands damaged)"
           },
           {
-            "id": "trx_traise",
-            "name": "TRX T-raise",
-            "muscles": "Middle deltoid · rhomboids · posterior shoulder",
-            "weighted": false,
+            "id": "db_lateral",
+            "name": "Dumbbell lateral raise",
+            "muscles": "Middle deltoid · supraspinatus · upper traps",
+            "weighted": true,
             "sets": 3,
             "reps": "12–15",
             "rest": 60,
-            "url": "https://www.trxtraining.com/blogs/news/trx-shoulder-exercises",
-            "tip": "Same leaning position as the Y-fly. Raise both straight arms out to the sides until they form a T with your body, palms facing down. Squeeze your shoulder blades together at the top and hold for one second before lowering slowly. This is the TRX equivalent of a lateral raise — it targets the middle deltoid through a loaded stretch that bands can't replicate at high tension.",
-            "warn": "Replaces band lateral raise (bands damaged)"
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/43/lateral-raise/",
+            "tip": "Stand tall with a dumbbell in each hand, palms facing your thighs, slight soft bend at the elbows. Raise both arms out to the sides until they reach shoulder height — no higher. At the top, your pinkies should be slightly higher than your thumbs, as if pouring water from a jug. Control the lowering over 2–3 seconds — the eccentric is where most of the growth stimulus comes from. Start very light: handle-only or 1.25kg per side. Replaces TRX T-raise with a more direct lateral deltoid stimulus."
           },
           {
             "id": "trxtri",
@@ -236,16 +235,16 @@
         "lbl": "Block 1 — pull compound",
         "exs": [
           {
-            "id": "trxrow",
-            "name": "TRX row",
+            "id": "db_row",
+            "name": "Single-arm dumbbell row",
             "muscles": "Lats · rhomboids · rear deltoid · biceps · core",
-            "weighted": false,
+            "weighted": true,
             "sets": 4,
             "reps": "10–12",
-            "rest": 90,
-            "url": "https://www.acefitness.org/resources/everyone/exercise-library/84/trx-reg-back-row/",
-            "tip": "Face the anchor, hold handles with palms facing each other. Walk your feet forward until your body is at your working angle — 45° is moderate, nearly horizontal is hard. Pull your chest to the handles by retracting your shoulder blades first, then driving your elbows back. Squeeze hard at the top. Lower slowly with full arm extension. This is your most important exercise given your arm scan data — give it your best sets first.",
-            "note": "Priority exercise — your scan showed arms at 1.3/1.4 kg. This is the primary driver."
+            "rest": 150,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/52/single-arm-dumbbell-row/",
+            "tip": "Place one knee and the same-side hand on the couch for support, body roughly parallel to the floor. Let the dumbbell hang with a straight arm, shoulder fully relaxed. Initiate by retracting your shoulder blade, then drive your elbow straight back and up — keep it close to your body. Squeeze hard at the top, then lower with a fully straight arm. This is your primary progressive overload exercise: log the weight every session and add 1.25kg when you complete all 4 sets cleanly.",
+            "note": "Priority exercise — replaces TRX row. Track weight each session and increase load systematically. Primary driver for your arm deficit."
           },
           {
             "id": "trxface",
@@ -256,7 +255,7 @@
             "reps": "12–15",
             "rest": 60,
             "url": "https://www.trxtraining.com/blogs/news/trx-shoulder-exercises",
-            "tip": "Face the anchor with arms extended at eye level. Pull both hands toward your face with your elbows flaring high and wide — like a double bicep pose. The key is to lead with your elbows, not your hands, and to squeeze your rear delts and external rotators hard at the end range. Hold for one second at peak contraction. This is corrective work for shoulder health and posture — take it slow, don't rush the reps."
+            "tip": "Face the anchor with arms extended at eye level. Pull both hands toward your face with your elbows flaring high and wide — elbows at or above shoulder height, not pulling back and down like a row. End position: thumbs plugging your ears, elbows wide, palms facing forward. The external rotation at the top is the whole point — it trains the rotator cuff in a way rows can't. Hold for one second at peak contraction. Alternative if no TRX available: band pull-aparts — hold a band at shoulder width, pull to a T-shape, squeeze rear delts at end range."
           }
         ]
       },
@@ -264,39 +263,26 @@
         "lbl": "Block 2 — bicep & upper back isolation",
         "exs": [
           {
-            "id": "supine",
-            "name": "TRX supine row (underhand)",
-            "muscles": "Biceps · brachialis · lower lats",
-            "weighted": false,
+            "id": "hammer_curl",
+            "name": "Hammer curl",
+            "muscles": "Brachialis · brachioradialis · biceps brachii",
+            "weighted": true,
             "sets": 3,
-            "reps": "10–12",
-            "rest": 90,
-            "url": "https://www.acefitness.org/resources/everyone/exercise-library/78/trx-reg-biceps-curl/",
-            "tip": "Same position as the TRX row but rotate your grip so your palms face upward (supinated). This shift moves a significant portion of the load from your lats onto your biceps and brachialis. Pull toward your lower chest or upper abdomen, keeping your elbows close to your body. This is a key exercise for addressing your arm muscle deficit from the scan."
+            "reps": "12–15",
+            "rest": 60,
+            "url": "https://www.acefitness.org/resources/everyone/exercise-library/278/hammer-curl/",
+            "tip": "Hold a dumbbell in each hand with palms facing each other — thumbs pointing up throughout, never rotating. Keeping elbows pinned to your sides, curl both dumbbells toward your shoulders. The neutral grip shifts emphasis onto the brachialis, which sits underneath the bicep and adds significant thickness to the upper arm when developed. Lower slowly over 3 seconds."
           },
           {
-            "id": "bcurl",
-            "name": "Band bicep curl",
+            "id": "db_curl",
+            "name": "Dumbbell bicep curl",
             "muscles": "Biceps brachii · brachialis · brachioradialis",
-            "weighted": false,
+            "weighted": true,
             "sets": 3,
             "reps": "12–15",
             "rest": 60,
             "url": "https://www.acefitness.org/resources/everyone/exercise-library/70/bicep-curl/",
-            "tip": "Stand on the centre of the band with both feet, a handle in each hand, palms forward. Keeping your elbows pinned to your sides — they act as a hinge, not a lever — curl both handles toward your shoulders. Squeeze hard at the top. Then lower slowly over 3 full seconds. The eccentric (lowering) phase produces more muscle damage and therefore more growth stimulus than the curl itself. Resist the urge to drop the weight.",
-            "warn": "Light bands only — use lowest tension available"
-          },
-          {
-            "id": "pullap",
-            "name": "Band pull-apart",
-            "muscles": "Rear deltoid · rhomboids · mid and lower traps",
-            "weighted": false,
-            "sets": 3,
-            "reps": "15–20",
-            "rest": 60,
-            "url": "https://www.healthline.com/health/fitness/back-exercises-with-bands",
-            "tip": "Hold the band at shoulder width, arms straight in front of you, palms down. Pull the band apart by driving both hands outward until your arms form a T. Squeeze your rear delts and hold for one second at the widest point. Control the return — don't let the band snap back. This looks deceptively easy; by rep 15 with a full squeeze at each rep, you'll feel it. Keep this as a light band exercise only.",
-            "warn": "Light bands only — keep tension low"
+            "tip": "Hold a dumbbell in each hand, palms facing forward. Keeping your elbows pinned to your sides, curl both dumbbells toward your shoulders. As you curl, actively supinate your wrists — rotate so pinkies turn up — to maximise bicep activation. Squeeze hard at the top. Lower slowly over 3 seconds: the eccentric produces more growth stimulus than the curl itself. Track weight and progress like the row."
           }
         ]
       },
